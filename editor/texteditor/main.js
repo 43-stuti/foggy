@@ -13,10 +13,7 @@ let init = () => {
 let recomplie = () => {
     let parsedOutput = parser.parseCode(editor.value)
     let exec = program.execute(parsedOutput)
-    let shaderOutput = toglsl.init(exec,{
-        totalSpan: 13,
-        size: 50
-    })
+    let shaderOutput = toglsl.init(exec.variableStack,exec.world)
     canvas.updateShader(shaderOutput)
 }
 /**

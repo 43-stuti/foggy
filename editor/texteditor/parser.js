@@ -7,7 +7,7 @@ export default class Parser {
         let fn;
         let val;
         let arg;
-        if(split1?.[1].indexOf("=") != -1) {
+        if(split1?.[1]?.indexOf("=") != -1) {
             val = split1?.[1].split("=");
             fn = val?.[0]?.trim()
             val = val?.[1]?.trim()
