@@ -1,3 +1,5 @@
+import jsToGlsl from "./../texteditor/js-glsl.js";
+let toglsl = new jsToGlsl();
 const canvas = document.querySelector("#glCanvas");
 const gl = canvas.getContext("webgl");
 if(gl === null) { alert("no webgl"); }
@@ -8,9 +10,14 @@ const fragBase = `
   precision mediump float;
 
   uniform vec2 uResolution;
-  uniform vec2 u_mouse;
-  uniform float time;
+  uniform float timex;
+  uniform float ct;
+  uniform float sizes[4];
+  uniform float positionsX[4];
+  uniform float positionsY[4];
+  uniform int mergeUnifrom[4];
   #define NUM_OCTAVES 5
+  #define index 1
   float rand(float n){return fract(sin(n) * 43758.5453123);}
   float rand(vec2 n) { return fract(sin(dot(n, vec2(12.9898, 4.1414))) * 43758.5453); }
   float mod289(float x){return x - floor(x * (1.0 / 289.0)) * 289.0;}
@@ -84,6 +91,21 @@ const fragBase = `
   vec2 random2( vec2 p ) {
     return fract(sin(vec2(dot(p,vec2(127.1,311.7)),dot(p,vec2(269.5,183.3))))*43758.5453);
   }
+  float random (in float x) {
+    return fract(sin(x)*1e4);
+  }
+  mat2 rotationMatrix(float theta)
+  {
+      return mat2(
+          cos(theta),-sin(theta),
+          sin(theta),cos(theta)
+      );
+  }
+  float smin( float a, float b, float k )
+{
+    a = pow( a, k ); b = pow( b, k );
+    return pow( (a*b)/(a+b), 1.0/k );
+}
   `;
 
 const shaders = {
@@ -96,7 +118,12 @@ const shaders = {
   frag: `
   precision mediump float;
   uniform vec2 uResolution;
-  uniform float time;
+  uniform float timex;
+  uniform float ct;
+  uniform float sizes[4];
+  uniform float positionsX[4];
+  uniform float positionsY[4];
+  uniform int mergeUnifrom[4];
   float random (in vec2 st) {
     return fract(sin(dot(st.xy,
                          vec2(12.9898,78.233)))*
@@ -141,20 +168,25 @@ float fbm (in vec2 st) {
 void main() {
     vec2 st = gl_FragCoord.xy/uResolution.xy;
     st.x *= uResolution.x/uResolution.y;
-
+    float test = ct;
     vec3 color = vec3(0.0);
-    st.y *= sin(time*0.09);
+    st.y *= sin(timex*0.09);
     color += fbm(st*3.0);
 
-    gl_FragColor = vec4(color,1.0);
+    gl_FragColor = vec4(positionsY[1],0,0,1.0);
 }
   `
 };
 const fragLocations = {
   timeLoc: null,
   resLoc: null,
+  colorPos: null,
+  x:null,
+  y:null,
+  size:null,
+  merge:null
 }
-
+let colorStat = 0.6;
 const program = createProgram();
 
 function init() {
@@ -176,12 +208,18 @@ function init() {
   bindLocations(gl, program, fragLocations);
 
   let animate = function(t) {
-
+    let uniformValues = toglsl.updateUniforms(t/1000);
+    colorStat = Math.random();
     if(canvas.clientWidth !== canvas.width) canvas.width = canvas.clientWidth;
     if(canvas.clientHeight !== canvas.height) canvas.height = canvas.clientHeight;
     gl.viewport(0,0,canvas.width, canvas.height);
     gl.uniform2fv(fragLocations.resLoc, [canvas.width, canvas.height]);
     gl.uniform1f(fragLocations.timeLoc, t/1000);
+    gl.uniform1f(fragLocations.colorPos, colorStat);
+    gl.uniform1fv(fragLocations.x, uniformValues.xPos);
+    gl.uniform1fv(fragLocations.y, uniformValues.yPos);
+    gl.uniform1fv(fragLocations.size, uniformValues.size);
+    gl.uniform1iv(fragLocations.merge, uniformValues.mergeUniform);
     gl.clearColor(1., 1., 1.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.drawArrays(gl.TRIANGLES, 0, vertexCount);
@@ -214,13 +252,18 @@ function createShader(type, source) {
 }
 
 function bindLocations() {
-  fragLocations.timeLoc = gl.getUniformLocation(program, "time");
+  fragLocations.timeLoc = gl.getUniformLocation(program, "timex");
   fragLocations.resLoc = gl.getUniformLocation(program, "uResolution");
+  fragLocations.colorPos = gl.getUniformLocation(program, "ct");
+  fragLocations.x = gl.getUniformLocation(program, "positionsX");
+  fragLocations.y = gl.getUniformLocation(program, "positionsY"); 
+  fragLocations.merge = gl.getUniformLocation(program, "mergeUnifrom");
+  fragLocations.size = gl.getUniformLocation(program, "sizes");
 }
 
 function updateShader(newShader) {
   let f = fragBase + newShader;
-  console.log('F',f)
+  console.log(f);
   let vs = createShader(gl.VERTEX_SHADER, shaders.vert);
   let fs = createShader(gl.FRAGMENT_SHADER, f);
   let sh =  gl.getAttachedShaders(program);
