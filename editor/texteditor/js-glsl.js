@@ -1,124 +1,21 @@
-let organismsObj = [{
-    size:0.2,
-    moves:true,
-    moment: 'LINEAR',
-    speed: {
-        x:0.0009,
-        y:0.0005
-    },
-    canMergeWith:[3],
-    colour: {
-        type:'GLOW',
-        intensity:10.5,
-        glow:3.6,
-        array :[{
-            r:1.0,
-            g:0.2,
-            b:0.3
-        }]
-    },
-    center:{
-        x:0.7,
-        y:0.2
-    },
-    density:1,
-    distortion : {
-        type:'SINE',
-        frequecy:20.1,
-        amplitude:0.02
-    }
 
-}, {
-    size:0.06,
-    center:{
-        x:0.7,
-        y:0.2
-    },
-    colour : {
-        type:'SWIRL',
-        grains:600,
-        array:[{
-            r:0.4,
-            g:0.29,
-            b:0.075
-        },{
-            r:1.0,
-            g:0.321,
-            b:0.427
-        },{
-            r:1.0,
-            g:0.418,
-            b:0.572
-        }]
-    },
-    density:1
-
-},{
-    size:0.07,
-    grows:true,
-    growthSpeed: 0.0007,
-    maxGrowth: 0.1,
-    center:{
-        x:0.6,
-        y:0.4
-    },
-    colour: {
-        type:'GLOW',
-        intensity:10.5,
-        glow:0.1,
-        array:[{
-            r:0.1,
-            g:0.6,
-            b:0.3
-        }]
-    },
-    density:1,
-    distortion : {
-        type:'SINE',
-        frequecy:60.1,
-        amplitude:0.05
-    }
-
-},{
-    size:0.1,
-    center:{
-        x:0.5,
-        y:0.5
-    },
-    moves:true,
-    moment: 'CIRCULAR',
-    speed: {
-        r:0.03,
-        delta:0.12
-    },
-    colour: {
-        type:'SHINE',
-        intensity:40.5,
-        glow:0.02,
-        array:[{
-            r:1.0,
-            g:0.6,
-            b:0.3
-        }]
-    },
-    density:1
-
-}]
 let mergeArray = [];
 let started = 0;
 export default class jsToGlsl {
     
-    constructor() {
+    constructor(args) {
+        console.log('ARGS',args)
+        this.orgs = args.organisms
     }
     starter = () => {
         let codeString = `
-       
+        
         void main() {
-            float fields[4];
-            vec3 fieldColors[4];
-            float distance[4];
+            float fields[100];
+            vec3 fieldColors[100];
+            float distance[100];
             float totalDist = 0.0;
-            for(int i=0;i<4;i++) {
+            for(int i=0;i<100;i++) {
                 fields[i] = 0.0;
                 fieldColors[i] = vec3(0.0,0.0,0.0);
                 distance[i] = 0.0;
@@ -130,68 +27,10 @@ export default class jsToGlsl {
         `
         return codeString
     }
-    forLoop = (index,scale, amp, m_dist, time_offset,isEvolving) => {
-        /*
-        TODO: add range conditiions
-        TODO: start evolution
-        *adjust fuse levels
-        *increase population
-        NOTE: This also sets the colour
-         */
-        if(!isEvolving) {
-            time_offset = 0;
-        }
-        let codeString = 
-        `
-        float m_dist_${index} = ${m_dist}.0;
-            vec2 st_${index} = ${scale}.0*st+${index}.0/6.;
-            vec2 i_st_${index} = floor(st_${index});
-            vec2 f_st_${index} = fract(st_${index});
-            for (int j= -1; j <= 1; j++ ) {
-                for (int i= -1; i <= 1; i++ ) {
-                    // Neighbor place in the grid
-                    vec2 neighbor = vec2(float(i),float(j));
-        
-                    // Random position from current + neighbor place in the grid
-                    vec2 offset = random2(i_st_${index} + neighbor);
-        
-                    // Animate the offset
-                    offset = 0.5 + 0.5*sin(time*${time_offset}.0 + 36.2831*offset);
-        
-                    // Position of the cell
-                    vec2 pos = neighbor + offset - f_st_${index};
-        
-                    // Cell distance
-                    float dist = length(pos);
-        
-                    // Metaball it!
-                    m_dist_${index} = min(m_dist_${index}, m_dist_${index}*dist);
-                }    
-            }
-        
-        //TODO: add conditions for effect
-        `
-        if(index == 0) {
-            codeString += `color += 1. - step(0.005, m_dist_${index});`
-        } else {
-            if(index % 2 == 0) {
-                codeString += `color += 1. - (m_dist_${index});`
-            } 
-            else {
-                codeString += `color += 1. - smoothstep(0.005,0.0055, m_dist_${index});`
-            }
-            
-            let colour = ['r','g','b']
-            
-            let picker = colour[Math.floor(Math.random() * colour.length)];
-            codeString += `color.${picker} += ${index}.0/5.0;`
-        }
-        return codeString
-    }
     colour = (blobObj,index) => {
-        let {size,distortion,colour} = blobObj;
+        let {size,colour} = blobObj;
         let codeString = `vec3 colour_${index} = vec3(0.1,0.2,0.3);`
-        let value = colour?.type;
+        let value = colour?.colortype;
         switch(value) {
             case 'SWIRL' :
                 //TODO: Statrt with 3 colours. Add more when understood algo
@@ -210,17 +49,17 @@ export default class jsToGlsl {
                 codeString = `
                     float glow_${index} = 1.0/length(posn_${index});
                     glow_${index} = pow(glow_${index}/${colour.intensity},${colour.glow});
-                    vec3 colour_${index} = glow_${index}*${colour?.array?.[0] || `vec3(1.,1.0,1.0)`};
+                    vec3 colour_${index} = glow_${index}*${colour?.colorarray?.[0] || `vec3(1.,1.0,1.0)`};
                 `
             break;
             case 'SHINE' :
                 codeString = `
-                    vec3 colour_${index} = smoothstep(${size}-0.05,${size},(length(posn_${index})))*${colour?.array?.[0] || `vec3(1.,1.0,1.0)`};
+                    vec3 colour_${index} = smoothstep(${size.sizevalue}-0.05,${size.sizevalue},(length(posn_${index})))*${colour?.colorarray?.[0] || `vec3(1.,1.0,1.0)`};
                 `
             break;
             case 'BASIC' :
                 codeString = `
-                    vec3 colour_${index} = ${colour?.array?.[0] || `vec3(1.0,1.0,1.0)`}
+                    vec3 colour_${index} = ${colour?.colorarray?.[0] || `vec3(1.0,1.0,1.0)`};
                 `
             break;
             /*case 'SHINE' :
@@ -232,14 +71,14 @@ export default class jsToGlsl {
     }
     shape = (blobObj,index) => {
         //TODO: Hollow circle
-        let {size,distortion,colour} = blobObj;
-        let codeString = `float shape_${index} = (1.-step(${size},length(posn_${index})));`;
-        let waveDistortion,r;
-        let value = distortion?.type;
+        let {size,distortion} = blobObj;
+        let codeString = `float shape_${index} = (1.-step(${size.sizevalue},length(posn_${index})));`;
+        let waveDistortion;
+        let value = distortion?.distortiontype;
         switch(value) {
             case 'SINE':
                 waveDistortion = `
-                    sin(posn_${index}.x*3.14*${distortion.frequecy})*${distortion.amplitude}`
+                    sin(posn_${index}.x*3.14*${distortion.frequency})*${distortion.amplitude}`
                 
                 codeString = 
                     `
@@ -274,7 +113,6 @@ export default class jsToGlsl {
             add distortion
         */
         let codeString = `
-            //vec2 posn_${index} = (st-${blobObj.center});
             vec2 posn_${index} = (st-vec2(positionsX[${index}],positionsY[${index}]));
             int merge_${index} = mergeUnifrom[${index}];
             ${this.shape(blobObj,index)};
@@ -286,26 +124,22 @@ export default class jsToGlsl {
         let ind = 0;
         
         //calculate fields,distance and colour of the current pixel for each organism
-        for(let org in organismsObj) {
-           let obj = this.normalizeValues(organismsObj[org],world);
-           obj = this.assignValues(obj,world);
-           if(obj.density) {
-            //codeString += this.forLoop(ind,obj.density,0,1,obj.growthRate || 0,world.evolve)
-            obj.ind = ind;
-            codeString +=this.blob(obj,ind); 
-            codeString +=this.colour(obj,ind); 
-            codeString += `
-                color += shape_${ind}*colour_${ind};
-            `
-            codeString += `
-                for(int j=0;j<4;j++) {
-                    if(j == merge_${ind}) {
-                        fields[j] += (20.0*${obj.size})/((length(posn_${ind}))*(length(posn_${ind})));
-                        distance[j] += length(posn_${ind});
-                    }
-                }
-            `
-           }
+        for(let org in this.orgs) {
+           let obj = this.normalizeValues(this.orgs[org],world);
+           obj.ind = ind;
+           codeString +=this.blob(obj,ind); 
+           codeString +=this.colour(obj,ind); 
+           codeString += `
+               color += shape_${ind}*colour_${ind};
+           `
+           codeString += `
+               for(int j=0;j<100;j++) {
+                   if(j == merge_${ind}) {
+                       fields[j] += (20.0*${obj.size.sizevalue})/((length(posn_${ind}))*(length(posn_${ind})));
+                       distance[j] += length(posn_${ind});
+                   }
+               }
+           `
            ind++;
         }
         //modify here to add background
@@ -313,7 +147,7 @@ export default class jsToGlsl {
                 `
                     ${this.blendColour()}
                     
-                    for(int i=0;i<4;i++) {
+                    for(int i=0;i<100;i++) {
                         color += (step(1.,vec3(min ( 1.0, max ( fields[i]/255.0, 0.0 ) ))))*fieldColors[i];
                     }
                     //color *= vec3(sin(200.*3.14*st.y));
@@ -326,72 +160,78 @@ export default class jsToGlsl {
     //move to another file 
     blendColour = ()=> {
         let codeString = ``;
-        for(let org in organismsObj) {
-            let obj = organismsObj[org];
-            let mergeGroup = obj.mergeGroup;
+        let ind = 0
+        for(let org in this.orgs) {
             codeString += `
-            for(int j=0;j<4;j++) {
-                if(j == merge_${org}) {
-                    fieldColors[j] += (mix(colour_${org},colour_${org}*0.01,length(posn_${org}))) * (1.0-(length(posn_${org})/distance[j]));
+            for(int j=0;j<100;j++) {
+                if(j == merge_${ind}) {
+                `
+                if(mergeArray[this.orgs[org].mergeGroup]?.length > 1) {
+                    codeString += `fieldColors[j] += (mix(colour_${ind},colour_${ind}*0.01,length(posn_${ind}))) * (1.0-(length(posn_${ind})/distance[j]));`
+                } else {
+                    codeString += `colour_${ind};`
                 }
-            }
+                    
+                codeString +=  `
+                            }
+                        }`;
             
-            `
+            
+            ind++;
         }
         return codeString;
     }
     updateUniforms = (time) => {
-        let size = [];
+        let sizeArr = [];
         let xPos = [];
         let yPos = [];
         let mergeUniform = [];
-        for(let org in organismsObj) {
+        for(let org in this.orgs) {
+            let {size,movement,center} = this.orgs[org];
             if(started) {
                 //handle growth types
-                //oscialltes small and big
-                if(organismsObj[org].grows) {
-                    organismsObj[org].size += organismsObj[org].growthSpeed;
-                    if(organismsObj[org].size > 1 || organismsObj[org].size <0 || organismsObj[org].size > organismsObj[org].maxGrowth) {
-                        organismsObj[org].grows = 0;
+                //oscialltes small and 
+                if(size.grains) {
+                    size.sizevalue += size.growthSpeed;
+                    if(size.sizevalue > 1 || size.sizevalue <0 || size.sizevalue > size.maxGrowth) {
+                        size.grows = false;
                     }
                 }
-                if(organismsObj[org].moves) {
-                    if(!organismsObj[org].moment || organismsObj[org].moment == 'LINEAR') {
-                        organismsObj[org].center.x += organismsObj[org].speed.x;
-                        organismsObj[org].center.y += organismsObj[org].speed.y;
-                        if(organismsObj[org].center.y > 1 || organismsObj[org].center.x > 1 || organismsObj[org].center.x < 0 || organismsObj[org].center.y < 0) {
-                            organismsObj[org].speed.x *= -1;
-                            organismsObj[org].speed.y *= -1;
+                if(movement.moves) {
+                    if(movement.movementtype == 'LINEAR') {
+                        center.centerx += movement.speed.xspeed;
+                        center.centery += movement.speed.yspeed;
+                        if(center.centery > 1 || center.centerx > 1 || center.centerx < 0 || center.centery < 0) {
+                            movement.speed.xspeed *= -1;
+                            movement.speed.yspeed *= -1;
                         }
                     }
-                    if(organismsObj[org].moment == 'CIRCULAR') {
-                        //center.y+rsin
-                        //center.x+rcos
-                        //set center 
-                        let r = organismsObj[org].speed.r+organismsObj[org].size;
-                        let f = organismsObj[org].speed.delta;
-                        if(!organismsObj[org].speed.center) {
-                            organismsObj[org].speed.center = {}
-                            organismsObj[org].speed.center.x =  organismsObj[org].center.x + r;
-                            organismsObj[org].speed.center.y =  organismsObj[org].center.y;
+                    if(movement.movementtype == 'CIRCULAR') {
+                        let r = movement.speed.r+size.sizevalue;
+                        let f = movement.speed.delta;
+                        if(!movement.speed.center) {
+                            movement.speed.center = {}
+                            movement.speed.center.x =  movement.center.x + r;
+                            movement.speed.center.y =  movement.center.y;
                         }
-                        organismsObj[org].center.x = organismsObj[org].speed.center.x + Math.cos(time*Math.PI*f)*r;
-                        organismsObj[org].center.y = organismsObj[org].speed.center.y + Math.sin(time*Math.PI*f)*r;;
+                        center.centerx = movement.speed.center.x + Math.cos(time*Math.PI*f)*r;
+                        center.centery = movement.speed.center.y + Math.sin(time*Math.PI*f)*r;;
                     }
                     
                 }
                 
             }
             //check merge values
-            xPos.push(organismsObj[org].center.x);
-            yPos.push(organismsObj[org].center.y);
-            size.push(organismsObj[org].size);
+            xPos.push(center.centerx);
+            yPos.push(center.centery);
+            sizeArr.push(size.sizevalue);
            
         }
         this.checkMergeValues();
         let emptyIndex = mergeArray.length+1;
-        for(let org in organismsObj) {
-            let obj = organismsObj[org];
+        for(let org in this.orgs) {
+            let obj = this.orgs[org];
+            
             if(obj.mergeGroup) {
                 mergeUniform.push(obj.mergeGroup-1);
                 obj.mergeGroup = obj.mergeGroup-1;
@@ -402,26 +242,27 @@ export default class jsToGlsl {
             }
         }
         //console.log('MERGE UNIFORM',mergeUniform);
-        console.log('SIZE',size);
+        //console.log('SIZE',size);
         return {
             xPos:xPos,
             yPos:yPos,
-            size:size,
-            mergeUniform:mergeUniform
+            size:sizeArr,
+            mergeUniform:mergeUniform,
+            count:Object.keys(this.orgs).length
         };
     }
     checkMergeValues = () => {
-        let dummyObj = organismsObj;
+        let dummyObj = this.orgs;
         mergeArray = [];
-        for(let orgs in organismsObj) {
+        for(let orgs in this.orgs) {
             dummyObj[orgs].visited = false;
-            organismsObj[orgs].visited = false;
+            this.orgs[orgs].visited = false;
         }
-        for(let orgs in organismsObj) {
+        for(let orgs in this.orgs) {
             let mergeGroup = [parseInt(orgs)]
             mergeGroup = this.merge(orgs,dummyObj,mergeGroup);
             if(mergeGroup.length > 1) {
-                organismsObj[parseInt(orgs)].mergeGroup = mergeArray.length+1;
+                this.orgs[parseInt(orgs)].mergeGroup = mergeArray.length+1;
                 mergeArray.push(mergeGroup)
             }
         }
@@ -443,7 +284,7 @@ export default class jsToGlsl {
                 if(dist < checkMerge.size+currentObj.size) {
                     mergeGroup.push(childObjIndex);
                     let returnArray = this.merge(mergeObj[ind],dummyObj,[]);
-                    organismsObj[childObjIndex].mergeGroup = mergeArray.length+1;
+                    this.orgs[childObjIndex].mergeGroup = mergeArray.length+1;
                     mergeGroup = [...mergeGroup,...returnArray]
                 }
             }
@@ -459,21 +300,14 @@ export default class jsToGlsl {
         /*if(org.center) {
             org.center = `vec2(${this.toFloat(org.center.x)},${this.toFloat(org.center.y)})`;
         }*/
-        if(org.colour && org.colour.array) {
-            org.colour.array.forEach((elm,index) => {
-                org.colour.array[index] = `vec3(${this.toFloat(elm.r)},${elm.g},${this.toFloat(elm.b)})`;
+        if(org.colour && org.colour.colorarray) {
+            let arr = org.colour.colorarray
+            arr.forEach((elm,index) => {
+               arr[index] = `vec3(${this.toFloat(elm.r)},${elm.g},${this.toFloat(elm.b)})`;
             });
             
         }
         return org
-    }
-    assignValues = (org) => {
-        let x = Math.random();
-        let y = Math.random();
-        if(!org.center) {
-            org.center =  `vec2(${this.toFloat(x)},${this.toFloat(y)})`;
-        }
-        return org;
     }
 
     /**

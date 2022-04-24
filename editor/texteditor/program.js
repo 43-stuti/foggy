@@ -1,125 +1,88 @@
+import org from './../../structures/org.js'
+import collection from './../../structures/collection.js'
+import props from './../../structures/properties.js'
+console.log('PROPS',props);
+//make global error array or override console.log?
+
+//
 export default class Program {
+    constructor() {
+        //TODO:delayed functions!
+        this.functionStack = [];
+        this.collection = new collection();
+    }
     
-  	constructor(world,variableStack) {
-      this.variableStack = variableStack
-      this.world = {
-        evolve:false
-      }
+    addToFunctionStack = (inst) => {
+        /**TODO:
+         * Move to another higer function 
+         * that handles 
+            arithmetic 
+            clone
+            assign one value to another
+            basic property assignment
+         */
+        if(!props[inst.fn]) {
+            console.log('undefined property')
+            return false
+        }
+        
+        this.execute(inst)
     }
-    defineVariable = (ip) => {
-      if(this.variableStack[ip.arg]) {
-        console.log('already defined')
-      } else {
-        this.variableStack[ip.arg] = {};
-      }
+    execute = (inst) => {
+        //value setter 
+        //add arithmetic
+        let propObj = props[inst.fn];
+        if(propObj.struct == 'org') {
+            if(!inst.op || !this.collection.organisms[inst.op]) {
+                console.log('undefined org')
+                return false
+            }
+            let obj = this.createPropObj(inst.fn,inst.val);
+            let org = this.collection.organisms[inst.op];
+            org.setProperty(obj)
+        }
+
+        if(propObj.struct == 'collection') {
+            this.collection.add(inst.val)
+        }
+        
+        this.functionStack.push(inst);
     }
-    addVariableProperty = (ip) => {
-      /**
-       Add type check and range check 
-       */
-      console.log('VP',this.variableStack[''])
-      if(!this.variableStack[ip.op]) {
-        return false
-      }
-      if(['density','color','lifespan','residesIn','bornOn','growthRate'].indexOf(ip.fn) == -1) {
-        console.log('undefined property')
-        return false
-      }
-      /**
-       type check:
-       TODO: Move to a separate function
-       */
-      switch(ip.fn) {
-        case 'density':
-        break;
-        case 'color':
-        break;
-        case 'lifespan':
-        break;
-        case 'residesIn':
-        break;
-        case 'bornOn':
-        break;
-        case 'growthRate':
-        break;
+    createPropObj(prop,val) {
+        let propObj = props[prop];
+        if(propObj.parent == 'self') {
+            return {
+                type:prop.toUpperCase(),
+                value:val
+            }
+        }
+        return this.createPropObj(propObj.parent,{
+            type:prop.toUpperCase(),
+            value:val
+        })
 
-      }
-
-      /**
-       add property to variable
-       */
-      
-       this.variableStack[ip.op][ip.fn] = ip.val;
     }
-    addWorldProperty = (ip) => {
-      /**
-       Add type check and range check 
-       */
-      console.log('VP',this.variableStack[''])
-      
-      if(['evolve','create'].indexOf(ip.fn) == -1) {
-        console.log('undefined property')
-        return false
-      }
-      /**
-       type check:
-       TODO: Move to a separate function
-       */
-      switch(ip.fn) {
-        case 'evolve':
-        break;
-        case 'create':
-        break;
+    defineOrg = (name) => {
+        let newOrg = new org(name);
+        this.collection.add(newOrg);
+    }
+    updateOrg = (name) => {
+        let newOrg = new org(name);
+        this.collection.add(newOrg);
+    }
+    destroyOrg = (name) => {
+    }
+    executeAll = () => {
 
-      }
-
-      /**
-       add property to variable
-       */
-        console.log('SET PROP',ip.fn,ip.val)
-       this.world[ip.fn] = ip.val;
+    }
+    addWorldProperty = (ip) => {al;
     }
     verify = (input) => {
-      if(!input.fn) return {isValid:false}
-      if(input.fn == 'spawn') {
-        if(!input.arg || !input.op) return {isValid:false}
-        return {isValid:true,type:1}
-      } else {
-        if(input.op == 'world') {
-          return {isValid:true,type:3}
-        } else {
-          if(!input.val || !input.op) return {isValid:false}
-          return {isValid:true,type:2}
-        }
-      }
     }
-    execute = (input) => {
-      this.variableStack = {};
-      input.forEach((ip) => {
-        let verify = this.verify(ip);
-        console.log('verify',verify)
-        if(verify.isValid) {
-          switch(verify.type) {
-            case 1:
-              this.defineVariable(ip)
-            break;
-            case 2:
-              this.addVariableProperty(ip)
-            break;
-            case 3:
-              this.addWorldProperty(ip)
-            break;
-          }
-        }
-      })
-      return {
-        world:this.world,
-        variableStack:this.variableStack
-      }
-    }
+    
 }
 
 /**
- ENTITIES: 
- world and organisms 
- */
+ENTITIES: 
+world and organisms 
+*/

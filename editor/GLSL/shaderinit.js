@@ -1,5 +1,4 @@
-import jsToGlsl from "./../texteditor/js-glsl.js";
-let toglsl = new jsToGlsl();
+
 const canvas = document.querySelector("#glCanvas");
 const gl = canvas.getContext("webgl");
 if(gl === null) { alert("no webgl"); }
@@ -16,6 +15,7 @@ const fragBase = `
   uniform float positionsX[4];
   uniform float positionsY[4];
   uniform int mergeUnifrom[4];
+  uniform int count;
   #define NUM_OCTAVES 5
   #define index 1
   float rand(float n){return fract(sin(n) * 43758.5453123);}
@@ -124,6 +124,7 @@ const shaders = {
   uniform float positionsX[4];
   uniform float positionsY[4];
   uniform int mergeUnifrom[4];
+  uniform int count;
   float random (in vec2 st) {
     return fract(sin(dot(st.xy,
                          vec2(12.9898,78.233)))*
@@ -184,106 +185,112 @@ const fragLocations = {
   x:null,
   y:null,
   size:null,
-  merge:null
+  merge:null,
+  count:null
 }
 let colorStat = 0.6;
-const program = createProgram();
+export default class shaderinit {
+  constructor(args) {
+    console.log('ARGSHE',args)
+    this.toglsl = args
+    this.program = this.createProgram();
+}
+  init = () => {
+    const vertexArray = new Float32Array([
+        -1., 1., 1., 1., 1., -1.,
+        -1., 1., 1., -1., -1., -1.
+    ]);
+    const vertexNumComponents = 2;
+    const vertexCount = vertexArray.length/vertexNumComponents;
+    const positionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, vertexArray, gl.STATIC_DRAW);
+    gl.useProgram(this.program);
 
-function init() {
-  const vertexArray = new Float32Array([
-      -1., 1., 1., 1., 1., -1.,
-      -1., 1., 1., -1., -1., -1.
-  ]);
-  const vertexNumComponents = 2;
-  const vertexCount = vertexArray.length/vertexNumComponents;
-  const positionBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, vertexArray, gl.STATIC_DRAW);
-  gl.useProgram(program);
+    const aVertexPosition = gl.getAttribLocation(this.program, "aVertexPosition");
+    gl.enableVertexAttribArray(aVertexPosition);
+    gl.vertexAttribPointer(aVertexPosition, vertexNumComponents, gl.FLOAT, false, 0, 0);
 
-  const aVertexPosition = gl.getAttribLocation(program, "aVertexPosition");
-  gl.enableVertexAttribArray(aVertexPosition);
-  gl.vertexAttribPointer(aVertexPosition, vertexNumComponents, gl.FLOAT, false, 0, 0);
+    this.bindLocations(gl, this.program, fragLocations);
 
-  bindLocations(gl, program, fragLocations);
-
-  let animate = function(t) {
-    let uniformValues = toglsl.updateUniforms(t/1000);
-    colorStat = Math.random();
-    if(canvas.clientWidth !== canvas.width) canvas.width = canvas.clientWidth;
-    if(canvas.clientHeight !== canvas.height) canvas.height = canvas.clientHeight;
-    gl.viewport(0,0,canvas.width, canvas.height);
-    gl.uniform2fv(fragLocations.resLoc, [canvas.width, canvas.height]);
-    gl.uniform1f(fragLocations.timeLoc, t/1000);
-    gl.uniform1f(fragLocations.colorPos, colorStat);
-    gl.uniform1fv(fragLocations.x, uniformValues.xPos);
-    gl.uniform1fv(fragLocations.y, uniformValues.yPos);
-    gl.uniform1fv(fragLocations.size, uniformValues.size);
-    gl.uniform1iv(fragLocations.merge, uniformValues.mergeUniform);
-    gl.clearColor(1., 1., 1.0, 1.0);
-    gl.clear(gl.COLOR_BUFFER_BIT);
-    gl.drawArrays(gl.TRIANGLES, 0, vertexCount);
-    window.requestAnimationFrame(animate);
+    let animate = (t) => {
+      let uniformValues = this.toglsl.updateUniforms(t/1000);
+      colorStat = Math.random();
+      if(canvas.clientWidth !== canvas.width) canvas.width = canvas.clientWidth;
+      if(canvas.clientHeight !== canvas.height) canvas.height = canvas.clientHeight;
+      gl.viewport(0,0,canvas.width, canvas.height);
+      gl.uniform2fv(fragLocations.resLoc, [canvas.width, canvas.height]);
+      gl.uniform1f(fragLocations.timeLoc, t/1000);
+      gl.uniform1f(fragLocations.colorPos, colorStat);
+      gl.uniform1fv(fragLocations.x, uniformValues.xPos);
+      gl.uniform1fv(fragLocations.y, uniformValues.yPos);
+      gl.uniform1fv(fragLocations.size, uniformValues.size);
+      gl.uniform1iv(fragLocations.merge, uniformValues.mergeUniform);
+      gl.uniform1i(fragLocations.count, uniformValues.count);
+      gl.clearColor(1., 1., 1.0, 1.0);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.drawArrays(gl.TRIANGLES, 0, vertexCount);
+      window.requestAnimationFrame(animate);
+    }
+    animate(0);
   }
-  animate(0);
+
+  createProgram = () => {
+    const vs = this.createShader(gl.VERTEX_SHADER, shaders.vert);
+    const fs = this.createShader(gl.FRAGMENT_SHADER, shaders.frag);
+    const program = gl.createProgram();
+    gl.attachShader(program, vs);
+    gl.attachShader(program, fs);
+    gl.linkProgram(program);
+    const success = gl.getProgramParameter(program, gl.LINK_STATUS);
+    if(success) return program;
+    console.log(gl.getProgramInfoLog(program));
+    gl.deleteProgram(program);
+  }
+
+  createShader = (type, source) => {
+    const shader = gl.createShader(type);
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
+    const success = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
+    if(success) return shader;
+    console.log(gl.getShaderInfoLog(shader));
+    gl.deleteShader(shader);
+  }
+
+  bindLocations = () => {
+    fragLocations.timeLoc = gl.getUniformLocation(this.program, "timex");
+    fragLocations.resLoc = gl.getUniformLocation(this.program, "uResolution");
+    fragLocations.colorPos = gl.getUniformLocation(this.program, "ct");
+    fragLocations.x = gl.getUniformLocation(this.program, "positionsX");
+    fragLocations.y = gl.getUniformLocation(this.program, "positionsY"); 
+    fragLocations.merge = gl.getUniformLocation(this.program, "mergeUnifrom");
+    fragLocations.size = gl.getUniformLocation(this.program, "sizes");
+    fragLocations.count = gl.getUniformLocation(this.program, "count");
+  }
+
+  updateShader = (newShader) => {
+    let f = fragBase + newShader;
+    console.log(f);
+    let vs = this.createShader(gl.VERTEX_SHADER, shaders.vert);
+    let fs = this.createShader(gl.FRAGMENT_SHADER, f);
+    let sh =  gl.getAttachedShaders(this.program);
+    sh.map( s => gl.detachShader(this.program, s) );
+    sh.map( s => gl.deleteShader(s) );
+    gl.attachShader(this.program, vs);
+    gl.attachShader(this.program, fs);
+    gl.linkProgram(this.program);
+    this.bindLocations();
+
+  }
+
+  captureImage = () => {
+    CAPTURE = true;
+    let p = new Promise( (resolveFn, rejectFn) => {
+      setTimeout(()=>{
+        resolveFn(IMAGE_URL);
+      },100);
+    })
+    return p;
+  }
 }
-
-function createProgram() {
-  const vs = createShader(gl.VERTEX_SHADER, shaders.vert);
-  const fs = createShader(gl.FRAGMENT_SHADER, shaders.frag);
-  const program = gl.createProgram();
-  gl.attachShader(program, vs);
-  gl.attachShader(program, fs);
-  gl.linkProgram(program);
-  const success = gl.getProgramParameter(program, gl.LINK_STATUS);
-  if(success) return program;
-  console.log(gl.getProgramInfoLog(program));
-  gl.deleteProgram(program);
-}
-
-function createShader(type, source) {
-  const shader = gl.createShader(type);
-  gl.shaderSource(shader, source);
-  gl.compileShader(shader);
-  const success = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
-  if(success) return shader;
-  console.log(gl.getShaderInfoLog(shader));
-  gl.deleteShader(shader);
-}
-
-function bindLocations() {
-  fragLocations.timeLoc = gl.getUniformLocation(program, "timex");
-  fragLocations.resLoc = gl.getUniformLocation(program, "uResolution");
-  fragLocations.colorPos = gl.getUniformLocation(program, "ct");
-  fragLocations.x = gl.getUniformLocation(program, "positionsX");
-  fragLocations.y = gl.getUniformLocation(program, "positionsY"); 
-  fragLocations.merge = gl.getUniformLocation(program, "mergeUnifrom");
-  fragLocations.size = gl.getUniformLocation(program, "sizes");
-}
-
-function updateShader(newShader) {
-  let f = fragBase + newShader;
-  console.log(f);
-  let vs = createShader(gl.VERTEX_SHADER, shaders.vert);
-  let fs = createShader(gl.FRAGMENT_SHADER, f);
-  let sh =  gl.getAttachedShaders(program);
-  sh.map( s => gl.detachShader(program, s) );
-  sh.map( s => gl.deleteShader(s) );
-  gl.attachShader(program, vs);
-  gl.attachShader(program, fs);
-  gl.linkProgram(program);
-  bindLocations();
-
-}
-
-function captureImage() {
-  CAPTURE = true;
-  let p = new Promise( (resolveFn, rejectFn) => {
-    setTimeout(()=>{
-      resolveFn(IMAGE_URL);
-    },100);
-  })
-  return p;
-}
-
-export  {init,updateShader,captureImage}

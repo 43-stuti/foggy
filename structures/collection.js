@@ -1,13 +1,13 @@
-export default class Org {
+import Org from './org.js'
+export default class Collection {
     constructor() {
-
+        this.organisms = {}
     }
-    parseString(str) {
-
-    }
-    parseCode(str) {
-    }
-    isValid() {
-
+    add(name) {
+       if(this.organisms[name]) {
+           console.log("Duplicate organism");
+           return false;
+       }
+       this.organisms[name] = new Org(name);
     }
 }
