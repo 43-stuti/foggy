@@ -3,32 +3,26 @@ import Program from './program.js'
 import jsToGlsl from './js-glsl.js'
 import shaderinit from './../GLSL/shaderinit.js'
 
-const parser = new Parser()
 let program = new Program();
+const parser = new Parser(program)
 let toglsl = new jsToGlsl(program.collection);
 let canvas = new shaderinit(toglsl);
-const editor = document.getElementById('text_editor_space');
+window.editor = document.getElementById('text_editor_space');
 
 let init = () => {
-  let newOrg = program.addToFunctionStack({
-    fn:'createOrg',
-    val:'test'
-
-  })
-  let exec = program.addToFunctionStack({
-     fn:'sizevalue',
-     op:'test',
-     val:0.2
-    })
-    toglsl = new jsToGlsl(program.collection);
     canvas.init();
 }
 let recomplie = () => {
     //let parsedOutput = parser.parseCode(editor.value)
     //let exec = program.execute(parsedOutput)
     
-    let shaderOutput = toglsl.init()
-    canvas.updateShader(shaderOutput)
+    
+}
+let parse = () => {
+  let parsedOutput = parser.parseCode(editor.value)
+  let shaderOutput = toglsl.init()
+  canvas.updateShader(shaderOutput)
+  //let exec = program.execute(parsedOutput)
 }
 /**
  on click update shader
@@ -43,8 +37,12 @@ init()
  program passes the global variable to main 
  main passes it to prog to glsl 
  */
- editor.addEventListener('keydown', (e) => {
+ window.editor.addEventListener('keydown', (e) => {
     if(e.code === "Enter") {
-      recomplie();
+      parse();
     }
+  });
+  window.editor.addEventListener('recomplieshader', (e) => {
+    console.log('recomplieshader')
+    recomplie();
   });

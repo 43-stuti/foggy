@@ -1,7 +1,6 @@
 import org from './../../structures/org.js'
 import collection from './../../structures/collection.js'
 import props from './../../structures/properties.js'
-console.log('PROPS',props);
 //make global error array or override console.log?
 
 //
@@ -21,12 +20,14 @@ export default class Program {
             assign one value to another
             basic property assignment
          */
+        console.log('INST',inst)
         if(!props[inst.fn]) {
             console.log('undefined property')
             return false
         }
         
         this.execute(inst)
+        console.log(this.collection.organisms)
     }
     execute = (inst) => {
         //value setter 
@@ -44,6 +45,8 @@ export default class Program {
 
         if(propObj.struct == 'collection') {
             this.collection.add(inst.val)
+            let event = new Event('recomplieshader');
+            window.editor.dispatchEvent(event);
         }
         
         this.functionStack.push(inst);
@@ -63,8 +66,6 @@ export default class Program {
 
     }
     defineOrg = (name) => {
-        let newOrg = new org(name);
-        this.collection.add(newOrg);
     }
     updateOrg = (name) => {
         let newOrg = new org(name);
@@ -72,7 +73,7 @@ export default class Program {
     }
     destroyOrg = (name) => {
     }
-    executeAll = () => {
+    recomplie = () => {
 
     }
     addWorldProperty = (ip) => {al;

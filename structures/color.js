@@ -2,6 +2,7 @@ const GRAINS = 10;
 const GLOW = 40.5;
 const INTENSITY = 0.1;
 const TYPE = 'BASIC';
+//strips
 export default class Color {
     constructor() {
         this.colortype = TYPE;
@@ -13,23 +14,25 @@ export default class Color {
 
     setProperty(element) {
         let {valid,elm} = this.isValid(element);
+            console.log('WTFFFFFFFFFFFFFFFF',elm,valid)
             if(!valid) {
                 return false;
             }
             if(elm.type == 'COLORTYPE') {
-                this.moment = elm.value;
+                this.colortype = elm.value;
             }
             if(elm.type == 'GRAINS') {
-                this.moves = elm.value;
+                this.grains = elm.value;
             }
             if(elm.type == 'GLOW') {
-                this.moves = elm.value;
+                this.glow = elm.value;
             }
             if(elm.type == 'INTENSITY') {
-                this.moves = elm.value;
+                this.intensity = elm.value;
             }
-            if(element.type == 'COLORARRAY') {
-                this.moves = elm.value;
+            if(elm.type == 'COLORARRAY') {
+                console.log('HEHEHEH',elm.value)
+                this.colorarray.push(elm.value);
             }
     }
     create(obj) {
@@ -61,26 +64,20 @@ export default class Color {
                 }
             break;
             case 'COLORARRAY':
-                if(!Array.isArray(element.value)) {
-                    valid = false;
+                if(!element.value.r) {
+                    element.value.r = 0.0
                 }
-                element.value.forEach((clr) => {
-                    if(!clr.r) {
-                        clr.r = 0.0
-                    }
-                    if(!clr.g) {
-                        clr.g = 0.0
-                    }
-                    if(!clr.b) {
-                        clr.b = 0.0
-                    }
-                    
-                })
+                if(!element.value.g) {
+                    element.value.g = 0.0
+                }
+                if(!element.value.b) {
+                    element.value.b = 0.0
+                }
             break;
         }
         return {
             valid:valid,
-            element:element
+            elm:element
         }
 
     }

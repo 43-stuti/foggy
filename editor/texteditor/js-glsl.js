@@ -31,6 +31,7 @@ export default class jsToGlsl {
         let {size,colour} = blobObj;
         let codeString = `vec3 colour_${index} = vec3(0.1,0.2,0.3);`
         let value = colour?.colortype;
+        let array = colour?.colorarray;
         switch(value) {
             case 'SWIRL' :
                 //TODO: Statrt with 3 colours. Add more when understood algo
@@ -40,26 +41,26 @@ export default class jsToGlsl {
                     vec2 uv = posn_${index} ;
                     for(int i = 0; i < ${colour.grains}; i++)
                         uv *= rotationMatrix(asin(length(uv)));
-                    vec3 colour_${index} = uv.y*${colour?.array?.[0]};
-                    colour_${index} += uv.x*${colour?.array?.[1]};
-                    colour_${index} += (length(uv-st))*0.2*${colour?.array?.[2] || `vec3(1.,1.0,1.0)`};
+                    vec3 colour_${index} = uv.y*vec3(${array[0]?.r || 1.0},${array[0]?.g || 1.0},${array[0]?.b || 1.0});
+                    colour_${index} += uv.x*vec3(${array[1]?.r || 1.0},${array[1]?.g || 1.0},${array[1]?.b || 1.0});
+                    colour_${index} += (length(uv-st))*0.2*vec3(${array[2]?.r || 1.0},${array[2]?.g || 1.0},${array[2]?.b || 1.0});
                 `
             break;
             case 'GLOW' :
                 codeString = `
                     float glow_${index} = 1.0/length(posn_${index});
                     glow_${index} = pow(glow_${index}/${colour.intensity},${colour.glow});
-                    vec3 colour_${index} = glow_${index}*${colour?.colorarray?.[0] || `vec3(1.,1.0,1.0)`};
+                    vec3 colour_${index} = glow_${index}*vec3(${array[0]?.r || 1.0},${array[0]?.g || 1.0},${array[0]?.b || 1.0});
                 `
             break;
             case 'SHINE' :
                 codeString = `
-                    vec3 colour_${index} = smoothstep(${size.sizevalue}-0.05,${size.sizevalue},(length(posn_${index})))*${colour?.colorarray?.[0] || `vec3(1.,1.0,1.0)`};
+                    vec3 colour_${index} = smoothstep(${size.sizevalue}-0.05,${size.sizevalue},(length(posn_${index})))*vec3(${array[0]?.r || 1.0},${array[0]?.g || 1.0},${array[0]?.b || 1.0});
                 `
             break;
             case 'BASIC' :
                 codeString = `
-                    vec3 colour_${index} = ${colour?.colorarray?.[0] || `vec3(1.0,1.0,1.0)`};
+                    vec3 colour_${index} = vec3(${array[0]?.r || 1.0},${array[0]?.g || 1.0},${array[0]?.b || 1.0});
                 `
             break;
             /*case 'SHINE' :
@@ -125,21 +126,24 @@ export default class jsToGlsl {
         
         //calculate fields,distance and colour of the current pixel for each organism
         for(let org in this.orgs) {
-           let obj = this.normalizeValues(this.orgs[org],world);
-           obj.ind = ind;
-           codeString +=this.blob(obj,ind); 
-           codeString +=this.colour(obj,ind); 
-           codeString += `
-               color += shape_${ind}*colour_${ind};
-           `
-           codeString += `
-               for(int j=0;j<100;j++) {
-                   if(j == merge_${ind}) {
-                       fields[j] += (20.0*${obj.size.sizevalue})/((length(posn_${ind}))*(length(posn_${ind})));
-                       distance[j] += length(posn_${ind});
-                   }
-               }
-           `
+            if(this.orgs[org].type == "UNI") {
+                let obj = this.normalizeValues(this.orgs[org],world);
+                obj.ind = ind;
+                codeString +=this.blob(obj,ind); 
+                codeString +=this.colour(obj,ind); 
+                codeString += `
+                    color += shape_${ind}*colour_${ind};
+                `
+                codeString += `
+                    for(int j=0;j<100;j++) {
+                        if(j == merge_${ind}) {
+                            fields[j] += (20.0*${obj.size.sizevalue})/((length(posn_${ind}))*(length(posn_${ind})));
+                            distance[j] += length(posn_${ind});
+                        }
+                    }
+                `
+            }
+            
            ind++;
         }
         //modify here to add background
@@ -169,7 +173,7 @@ export default class jsToGlsl {
                 if(mergeArray[this.orgs[org].mergeGroup]?.length > 1) {
                     codeString += `fieldColors[j] += (mix(colour_${ind},colour_${ind}*0.01,length(posn_${ind}))) * (1.0-(length(posn_${ind})/distance[j]));`
                 } else {
-                    codeString += `colour_${ind};`
+                    codeString += `fieldColors[j] += colour_${ind};`
                 }
                     
                 codeString +=  `
@@ -262,7 +266,7 @@ export default class jsToGlsl {
             let mergeGroup = [parseInt(orgs)]
             mergeGroup = this.merge(orgs,dummyObj,mergeGroup);
             if(mergeGroup.length > 1) {
-                this.orgs[parseInt(orgs)].mergeGroup = mergeArray.length+1;
+                this.orgs[orgs].mergeGroup = mergeArray.length+1;
                 mergeArray.push(mergeGroup)
             }
         }
@@ -271,22 +275,25 @@ export default class jsToGlsl {
         if(dummyObj[index] && !dummyObj[index].visited) {
             dummyObj[index].visited = true;
             dummyObj[index].mergeGroup = undefined;
-            let mergeObj = dummyObj[index].canMergeWith;
+            let mergeObj = dummyObj[index]?.merge?.mergeorgs;
             let currentObj = dummyObj[index];
             for(let ind in mergeObj) {
                 //check distance b/w ceneter 
-                let childObjIndex = parseInt(mergeObj[ind])
-                let checkMerge = dummyObj[childObjIndex];
-                let xDist = (currentObj.center.x-checkMerge.center.x);
-                let yDist = (currentObj.center.y-checkMerge.center.y);
-                let dist = Math.sqrt(xDist*xDist + yDist*yDist);
-                //if dist b/w cent > (r1+r2)
-                if(dist < checkMerge.size+currentObj.size) {
-                    mergeGroup.push(childObjIndex);
-                    let returnArray = this.merge(mergeObj[ind],dummyObj,[]);
-                    this.orgs[childObjIndex].mergeGroup = mergeArray.length+1;
-                    mergeGroup = [...mergeGroup,...returnArray]
+                if(ind != index) {
+                    let childObjIndex = mergeObj[ind]
+                    let checkMerge = dummyObj[childObjIndex];
+                    let xDist = (currentObj.center.centerx-checkMerge.center.centerx);
+                    let yDist = (currentObj.center.centery-checkMerge.center.centery);
+                    let dist = Math.sqrt(xDist*xDist + yDist*yDist);
+                    //if dist b/w cent > (r1+r2)
+                    if(dist < checkMerge.size.sizevalue+currentObj.size.sizevalue) {
+                        mergeGroup.push(childObjIndex);
+                        let returnArray = this.merge(mergeObj[ind],dummyObj,[]);
+                        this.orgs[childObjIndex].mergeGroup = mergeArray.length+1;
+                        mergeGroup = [...mergeGroup,...returnArray]
+                    }
                 }
+                
             }
             //console.log('index',index)
             //console.log('mergeGroup',mergeGroup)
@@ -303,7 +310,9 @@ export default class jsToGlsl {
         if(org.colour && org.colour.colorarray) {
             let arr = org.colour.colorarray
             arr.forEach((elm,index) => {
-               arr[index] = `vec3(${this.toFloat(elm.r)},${elm.g},${this.toFloat(elm.b)})`;
+               arr[index].r = this.toFloat(elm.r);
+               arr[index].g = this.toFloat(elm.g);
+               arr[index].b = this.toFloat(elm.b);
             });
             
         }

@@ -1,5 +1,5 @@
 const SIZE = 0.01;
-const MAXGROWTH = 0.001;
+const MAXGROWTH = 0.2;
 export default class Size {
     constructor() {
         this.sizevalue = SIZE;

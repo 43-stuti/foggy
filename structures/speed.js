@@ -2,8 +2,8 @@ export default class Speed {
     constructor() {
         this.xspeed = 0.0;
         this.yspeed= 0.0;
-        this.r = 0.0;
-        this.delta =0.0
+        this.r = 0.01;
+        this.delta = 0.12
     }
     setProperty(value,movement) {
         if(movement == 'LINEAR') {

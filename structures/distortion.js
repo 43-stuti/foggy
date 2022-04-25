@@ -1,6 +1,8 @@
 const FREQUENCY = 20.1;
 const AMPLITUDE = 0.005;
 const TYPE = 'SINE'
+//hollow
+//x*x
 export default class Distortion {
     constructor() {
         this.distortiontype = TYPE;

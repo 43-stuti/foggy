@@ -3,11 +3,11 @@ export default class Collection {
     constructor() {
         this.organisms = {}
     }
-    add(name) {
-       if(this.organisms[name]) {
+    add(obj) {
+       if(this.organisms[obj?.name]) {
            console.log("Duplicate organism");
            return false;
        }
-       this.organisms[name] = new Org(name);
+       this.organisms[obj?.name] = new Org(obj?.name,obj?.type||'UNI',this.organisms);
     }
 }

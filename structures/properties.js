@@ -8,6 +8,10 @@ const props = {
         struct:'org',
         parent:'self'
     }, 
+    'children': {
+        struct:'org',
+        parent:'self'
+    }, 
     'center': {
         parent:'self'
     },
@@ -18,6 +22,9 @@ const props = {
         parent:'self'
     },
     'size': {
+        parent:'self'
+    },
+    'merge': {
         parent:'self'
     },
     
@@ -107,6 +114,10 @@ const props = {
     'r': {
         struct:'org',
         parent:'speed'
+    },
+    'mergeorgs': {
+        struct:'org',
+        parent:'merge'
     }
 }
 export default props;
