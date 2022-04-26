@@ -16,12 +16,11 @@ let recomplie = () => {
     //let parsedOutput = parser.parseCode(editor.value)
     //let exec = program.execute(parsedOutput)
     
-    
+    let shaderOutput = toglsl.init()
+    canvas.updateShader(shaderOutput)
 }
 let parse = () => {
   let parsedOutput = parser.parseCode(editor.value)
-  let shaderOutput = toglsl.init()
-  canvas.updateShader(shaderOutput)
   //let exec = program.execute(parsedOutput)
 }
 /**
@@ -40,9 +39,10 @@ init()
  window.editor.addEventListener('keydown', (e) => {
     if(e.code === "Enter") {
       parse();
+      recomplie();
     }
   });
   window.editor.addEventListener('recomplieshader', (e) => {
     console.log('recomplieshader')
-    recomplie();
+    //recomplie();
   });

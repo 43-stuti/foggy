@@ -1,4 +1,5 @@
 import map from './functionmap.js'
+import evaluate from './eval.js'
 const roundRgx = '/\(([^)]+)\)/g';
 const sqRgx = '/\[([^\]]*)]/g';
 export default class Parser {
@@ -12,6 +13,7 @@ export default class Parser {
     parseLines(str) {
         let val;
         let fn;
+        let args = []
         console.log('STR',str)
         if(str.indexOf(":") > -1) {
             let val = str.split(':')[0];
@@ -26,8 +28,8 @@ export default class Parser {
             //error invalid command
             return;
         }
-
-        fn = str.match(/\[([^\]]*)]/)?.[1];
+        let strArr = str.split(' ');
+        fn = strArr?.[0];
         console.log('FN',fn)
         if(!fn) {
             //error
@@ -47,15 +49,16 @@ export default class Parser {
         /*
         parse at an to?
         */
-        val = str.match(/\(([^)]+)\)/)?.[1];
+       
+        strArr.shift();
+        args = strArr;
+        console.log('stt',args)
         //op = str.split('$')?.[1]?.split(' ')?.[0];
-
-        let fnObj = this.functions[fn];
-        let parsedObj = this[fnObj.parser](val,fnObj.fn);
+        let parsedObj = this.parseArgs(args,fn);
         if(!parsedObj) {
             return
         }
-        console.log('parsedObjs',parsedObj)
+
         for(let i in parsedObj) {
             for(let prop in parsedObj[i]) {
                 console.log('PP',prop)
@@ -68,108 +71,81 @@ export default class Parser {
                 }
             }
         }
-        
-        
+    }
+    parseArgs(args,fn) {
+        console.log('PARSE',args,fn)
+        if(!args) {
+            return;
+        }
 
+        let fnObj = this.functions[fn];
+        console.log('FNN',fnObj)
+        if(args?.[0] == "mimic") {
+            let mimicOrg = args?.[1];
+            //fetch values 
+            //or clone the whole prop?
+            this.program.addToFunctionStack({
+                fn:'mimic',
+                op:this.org,
+                val:mimicOrg,
+                prop:fnObj
+            })
+            return;
+        }
+
+        
+        if(fnObj.args && fnObj.args.length != args.length) return;
+        args.forEach((arg) => {
+            //check arithmetic and eval
+            //evaluate
+            let toeval = false;
+            ['+','-','*','/'].forEach((op) => {
+                if(arg.indexOf(op) > -1) 
+                    toeval = true;
+            })
+
+            if(toeval) {
+                arg = evaluate(arg);
+            }
+            
+        })
+        
+        if(fnObj.parser) {
+            return this[fnObj.parser](args,fnObj.fn);
+        }
+
+        return this.genericParser(args,fn)
+    }
+    genericParser(vals,fn) {
+        let props = {}
+        let fnObj = this.functions[fn];
+        fnObj?.args.forEach((arg,ind) => {
+            if(!(vals[ind] == '..')) 
+                props[arg] = vals[ind]
+        })
+        let returnObj = {};
+        returnObj[this.org] = props;
+        return returnObj;
     }
     parseWorld(val,fn) {
         let props = {
             createOrg:null
         }
-        if(fn == 'CREATE') {
+        if(fn == 'create') {
             if(!val) {
                 return;
             }
-            let splitval = val.split(' ');
-            if(splitval.length != 2 || ['uni','multi'].indexOf(splitval?.[0]?.toLowerCase()) <0) {
+            if(val.length != 2 || ['uni','multi'].indexOf(val?.[0]?.toLowerCase()) <0) {
                 return;
             }
             props.createOrg = {
-                type:splitval[0],
-                name:splitval[1]
+                type:val[0],
+                name:val[1]
             };
         }
         return {
             'NEW':props
         }
-    }
-    parseLocation(vals,fn) {
-        //checkop
-        //loop though the array of values received 
-        //check if org exists 
-        //return labeled parsed values
-        console.log('LOCATION',vals,fn,this.org);
-        if(!this.org) {
-            /*
-             error
-            */
-            return false
-        }
-        let props = {
-            centerx:null,
-            centery:null,
-            randomPos:null
-        }
-        let valArr = vals.split(" ");
-        valArr.forEach((val) => {
-            if(val.indexOf('!L') > -1) {
-                props.centerx = parseFloat(val.split('!L')[0]);
-            }
-            if(val.indexOf('L')> -1)  {
-                props.centerx = parseFloat(val.split('L')[0]);
-            }
-            if(val.indexOf('!D') > -1) {
-                props.centery = parseFloat(val.split('!D')[0]);
-            }
-            if(val.indexOf('D') > -1) {
-                props.centery = parseFloat(val.split('D')[0]);
-            }
-            if(val.indexOf('ANY')> -1) {
-                props.randomPos = true;
-            }
-            //check for org
-        })
-        let returnObj = {};
-        returnObj[this.org] = props;
-        return returnObj;
-        
-    }
-    parseSize(val,fn) {
-        //checkop
-        //loop though the array of values received 
-        //check if org exists 
-        //return labeled parsed values
-        
-        if(!this.org) {
-            /*
-             error
-            */
-            return false
-        }
-        let returnArr = [];
-        let props = {
-            sizevalue:null,
-            growthSpeed:null,
-            grows:null,
-            maxGrowth:null
-        }
-        if(!val) {
-            props.grows = false;
-        }
-        props.grows = true;
-        
-        if(fn == 'GROWSAT') {
-            props.growthSpeed = val;
-        }
-        if(fn == 'GROWSTO') {
-            props.maxGrowth = val; 
-        }
-        if(fn == 'SETSIZE') {
-            props.sizevalue = val;
-        }
-        let returnObj = {};
-        returnObj[this.org] = props;
-        return returnObj;
     }
     parseMovement(val,fn) {
         //checkop
@@ -182,49 +158,29 @@ export default class Parser {
             */
             return false
         }
-        let returnArr = [];
+        console.log('ORG MOVE',val,fn)
         let props = {
-            movement:null,
+            movementtype:null,
             moves:null,
-            xspeed:null,
-            yspeed:null,
-            r:null,
+            speedval:null,
+            angle:null,
+            rad:null,
             delta:null
         }
         if(!val) {
             props.moves = false;
         }
         props.moves = true;
+        if(fn == 'move') {
+            props.movementtype = 'LINEAR'
+            props.speedval = (val[0] == '..') ? null:val[0];
+            props.angle = (val[1] == '..') ? null:val[1];
+        }
 
-        if(fn == 'MOVE') {
-            let speed;
-            let angle;
-            let splitVal = val.split(' ');
-            splitVal.forEach((val) => {
-                if(val.indexOf('S')) {
-                    speed = val.split('S')[0]
-                }
-                if(val.indexOf('P')) {
-                    props.r = val.split('P')[0]
-                }
-                if(val.indexOf('A'))  {
-                    if(val.split('A')[0] == '360') {
-                        props.movement = 'CIRCULAR';
-                    } else {
-                        angle = parseInt(val.split('A')[0]);
-                    }
-                }
-            })
-            if(!angle) {
-                angle = Math.PI/4;
-            }
-            if(props.movement == 'CIRCULAR') {
-                props.delta = speed;
-            } else {
-                props.movement == 'LINEAR';
-                props.xspeed = speed*Math.cos(angle);
-                props.xspeed = speed*Math.sin(angle);
-            }
+        if(fn == 'move~') {
+            props.movementtype = 'CIRCULAR';
+            props.rad = (val[0] == '..') ? null:val[0];
+            props.delta = (val[1] == '..') ? null:val[1];
         }
         
         let returnObj = {};
@@ -236,7 +192,7 @@ export default class Parser {
         //loop though the array of values received 
         //check if org exists 
         //return labeled parsed values
-        console.log('WHAT',val,fn,this.org);
+       
         if(!this.org) {
             /*
              error
@@ -260,53 +216,6 @@ export default class Parser {
             props.colortype = 'SWIRL';
             props.intensity = val; 
         }
-        if(fn == 'SETCOLOR') {
-            let splitVal = val.split(' ');
-            let r=0,g=0,b=0
-            splitVal.forEach((sval) => {
-                console.log('svalsval',sval)
-                if(sval.indexOf('R') > -1) {
-                    r = sval.split('R')[0]
-                }
-                if(sval.indexOf('G') > -1) {
-                    g = sval.split('G')[0]
-                }
-                if(sval.indexOf('B') > -1)  {
-                    b = sval.split('B')[0]
-                }
-            })
-            props.colorarray = {
-                r:r,
-                g:g,
-                b:b
-            }
-        }
-        let returnObj = {};
-        returnObj[this.org] = props;
-        return returnObj;
-    }
-    parseDistortion(val,fn) {
-        //checkop
-        //loop though the array of values received 
-        //check if org exists 
-        //return labeled parsed values
-        if(!this.org) {
-            /*
-             error
-            */
-            return false
-        }
-        let returnArr = [];
-        let props = {
-            frequency:null,
-            amplitude:null
-        }
-        if(fn == 'AMPLITUDE') {
-            props.amplitude = val;
-        }
-        if(fn == 'FREQUENCY') {
-            props.frequency = val; 
-        }
         let returnObj = {};
         returnObj[this.org] = props;
         return returnObj;
@@ -315,9 +224,9 @@ export default class Parser {
         //only additive
         console.log('PARSE MERGE',val,fn)
         let returnObj = {};
-        if(fn == 'FUSE') {
+        if(fn == 'fuse') {
             console.log('FSE')
-            let orgs = val.split("+");
+            let orgs = val;
             /**
              random checks here. Move out
             */

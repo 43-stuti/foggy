@@ -11,10 +11,10 @@ const fragBase = `
   uniform vec2 uResolution;
   uniform float timex;
   uniform float ct;
-  uniform float sizes[4];
-  uniform float positionsX[4];
-  uniform float positionsY[4];
-  uniform int mergeUnifrom[4];
+  uniform float sizes[50];
+  uniform float positionsX[50];
+  uniform float positionsY[50];
+  uniform int mergeUnifrom[50];
   uniform int count;
   #define NUM_OCTAVES 5
   #define index 1
@@ -120,10 +120,10 @@ const shaders = {
   uniform vec2 uResolution;
   uniform float timex;
   uniform float ct;
-  uniform float sizes[4];
-  uniform float positionsX[4];
-  uniform float positionsY[4];
-  uniform int mergeUnifrom[4];
+  uniform float sizes[50];
+  uniform float positionsX[50];
+  uniform float positionsY[50];
+  uniform int mergeUnifrom[50];
   uniform int count;
   float random (in vec2 st) {
     return fract(sin(dot(st.xy,
@@ -191,7 +191,6 @@ const fragLocations = {
 let colorStat = 0.6;
 export default class shaderinit {
   constructor(args) {
-    console.log('ARGSHE',args)
     this.toglsl = args
     this.program = this.createProgram();
 }

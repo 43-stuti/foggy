@@ -11,7 +11,7 @@ export default class Movement {
         if(!valid) {
             return false;
         }
-        if(elm.type == 'MOVEMENT') {
+        if(elm.type == 'MOVEMENTTYPE') {
             this.movementtype = elm.value;
         }
         if(elm.type == 'MOVES') {

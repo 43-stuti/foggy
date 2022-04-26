@@ -39,6 +39,7 @@ export default class Size {
                 if(isNaN(element.value) || element.value > 1 ) {
                     element.value = SIZE;
                 }
+                element.value = parseFloat(element.value)
             break;
             case 'GROWS':
                 if(element.value) {
@@ -49,11 +50,13 @@ export default class Size {
                 if(isNaN(element.value) || element.value > 1) {
                     element.value = MAXGROWTH;
                 }
+                element.value = parseFloat(element.value)
             break;
             case 'GROWTHSPEED':
                 if(isNaN(element.value)) {
                     element.value = GROWTHSPEED;
                 }
+                element.value = parseFloat(element.value)
             break;
 
         }

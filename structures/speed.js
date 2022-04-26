@@ -1,8 +1,8 @@
 export default class Speed {
     constructor() {
-        this.xspeed = 0.0;
-        this.yspeed= 0.0;
-        this.r = 0.01;
+        this.speedval = 0.0;
+        this.angle= 0.0;
+        this.rad = 0.01;
         this.delta = 0.12
     }
     setProperty(value,movement) {
@@ -16,23 +16,23 @@ export default class Speed {
     parseCode(str) {
     }
     setLinear(element) {
-        if(element.type == 'XSPEED') {
-            this.x = element.value;
+        if(element.type == 'SPEEDVAL') {
+            this.speedval = parseFloat(element.value);
         }
-        if(element.type == 'YSPEED') {
-            this.y = element.value;
+        if(element.type == 'ANGLE') {
+            this.angle = parseFloat(element.value);
         }
         this.delta = 0.0;
-        this.r = 0.0
+        this.rad = 0.0
     }
     setCircluar(element) {
         if(element.type == 'DELTA') {
-            this.delta = element.value;
+            this.delta = parseFloat(element.value);
         }
-        if(element.type == 'R') {
-            this.r = element.value;
+        if(element.type == 'RAD') {
+            this.rad = parseFloat(element.value);
         }
-        this.x = 0.0;
-        this.y = 0.0
+        this.speedval = 0.0;
+        this.angle = 0.0
     }
 }

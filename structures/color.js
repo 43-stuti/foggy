@@ -6,7 +6,9 @@ const TYPE = 'BASIC';
 export default class Color {
     constructor() {
         this.colortype = TYPE;
-        this.colorarray = [];
+        this.r = 0.0,
+        this.g = 0.0,
+        this.b = 0.0,
         this.grains = GRAINS;
         this.glow = GLOW;
         this.intensity = INTENSITY;
@@ -30,9 +32,14 @@ export default class Color {
             if(elm.type == 'INTENSITY') {
                 this.intensity = elm.value;
             }
-            if(elm.type == 'COLORARRAY') {
-                console.log('HEHEHEH',elm.value)
-                this.colorarray.push(elm.value);
+            if(elm.type == 'R') {
+                this.r = elm.value;
+            }
+            if(elm.type == 'G') {
+                this.g = elm.value;
+            }
+            if(elm.type == 'B') {
+                this.b = elm.value;
             }
     }
     create(obj) {
@@ -52,27 +59,37 @@ export default class Color {
                 if(isNaN(element.value)) {
                     element.value = GLOW;
                 }
+                element.value = parseFloat(element.value);
             break;
             case 'INTENISTY':
                 if(isNaN(element.value)) {
                     element.value = INTENSITY;
                 }
+                element.value = parseFloat(element.value);
             break;
             case 'GRAINS':
                 if(isNaN(element.value)) {
                     element.value = GRAINS;
                 }
+                element.value = parseFloat(element.value);
             break;
-            case 'COLORARRAY':
-                if(!element.value.r) {
-                    element.value.r = 0.0
+            case 'R':
+                if(isNaN(element.value)) {
+                    element.value = 0.0;
                 }
-                if(!element.value.g) {
-                    element.value.g = 0.0
+                element.value = parseFloat(element.value);
+            break;
+            case 'G':
+                if(isNaN(element.value)) {
+                    element.value = 0.0;
                 }
-                if(!element.value.b) {
-                    element.value.b = 0.0
+                element.value = parseFloat(element.value);
+            break;
+            case 'B':
+                if(isNaN(element.value)) {
+                    element.value = 0.0;
                 }
+                element.value = parseFloat(element.value);
             break;
         }
         return {

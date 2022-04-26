@@ -39,7 +39,7 @@ export default class Org {
             this.size.setProperty(elm.value)
         }
         if(elm.type == 'DISTORTION') {
-            this.size.setProperty(elm.value)
+            this.distortion.setProperty(elm.value)
         }
         if(elm.type == 'MOVEMENT') {
             this.movement.setProperty(elm.value)

@@ -32,11 +32,13 @@ export default class Center {
                 if(isNaN(element.value) || element.value > 1 || element.value < 0) {
                     element.value = CENTERX;
                 }
+                element.value = parseFloat(element.value)
             break;
             case 'CENTERY':
                 if(isNaN(element.value) || element.value > 1 || element.value < 0) {
                     element.value = CENTERY;
                 }
+                element.value = parseFloat(element.value)
             break;
             case 'RANDOMPOS':
                 if(element.value) {

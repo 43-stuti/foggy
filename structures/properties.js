@@ -59,7 +59,15 @@ const props = {
         struct:'org',
         parent:'color'
     },
-    'colorarray': {
+    'r': {
+        struct:'org',
+        parent:'color'
+    },
+    'g': {
+        struct:'org',
+        parent:'color'
+    },
+    'b': {
         struct:'org',
         parent:'color'
     },
@@ -99,11 +107,11 @@ const props = {
         struct:'org',
         parent:'distortion'
     },
-    'xspeed': {
+    'angle': {
         struct:'org',
         parent:'speed'
     },
-    'yspeed': {
+    'speedval': {
         struct:'org',
         parent:'speed'
     },
@@ -111,7 +119,7 @@ const props = {
         struct:'org',
         parent:'speed'
     },
-    'r': {
+    'rad': {
         struct:'org',
         parent:'speed'
     },

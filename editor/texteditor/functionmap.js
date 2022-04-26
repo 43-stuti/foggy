@@ -1,33 +1,45 @@
 //set no of orgs and arg values
 const map = {
     'devise': {
-        fn:'CREATE',
+        fn:'create',
         parser:'parseWorld'
     },
-    'fuse': {
-        fn:'FUSE',
-        parser:'parseMerge'
-    },
     'locate': {
-        fn:'LOCATE',
-        parser:'parseLocation'
-    },
-    'growsat': {
-        fn:'GROWSAT',
-        parser:'parseSize'
-    },
-    'grows to': {
-        fn:'GROWSTO',
-        parser:'parseSize'
+        fn:'locate',
+        args:['centerx','centery']
     },
     'setsize': {
-        fn:'SETSIZE',
-        parser:'parseSize'
+        fn:'setsize',
+        args:['sizevalue']
+    },
+    'setcolor': {
+        fn:'setcolor',
+        args:['r','g','b']
+    },
+    'distort': {
+        fn:'DISTORT',
+        args:['amplitude','frequency']
+    },
+    'growth': {
+        fn:'growth',
+        args:['grows','maxgrowth','growthspeed']
     },
     'move': {
-        fn:'MOVE',
-        parser:'parseMovement'
+        fn:'move',
+        parser:'parseMovement',
+        args:['angle','distance']
     },
+    'move~': {
+        fn:'move~',
+        parser:'parseMovement',
+        args:['delta','distance']
+    },
+    'fuse': {
+        fn:'fuse',
+        parser:'parseMerge'
+    },
+    //patterns
+    //mix them to one
     'glow': {
         fn:'GLOW',
         parser:'parseColor'
@@ -36,17 +48,11 @@ const map = {
         fn:'SWIRL',
         parser:'parseColor'
     },
-    'setcolor': {
-        fn:'SETCOLOR',
-        parser:'parseColor'
-    },
-    'amplitude': {
-        fn:'AMPLITUDE',
-        parser:'parseColor'
-    },
-    'frequency': {
-        fn:'FREQUENCY',
-        parser:'parseColor'
-    }
+   
+    
 }
 export default map;
+
+/*
+make 
+*/
