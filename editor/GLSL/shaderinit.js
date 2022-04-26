@@ -213,6 +213,7 @@ export default class shaderinit {
     this.bindLocations(gl, this.program, fragLocations);
 
     let animate = (t) => {
+      console.log(canvas.clientWidth,canvas.width)
       let uniformValues = this.toglsl.updateUniforms(t/1000);
       colorStat = Math.random();
       if(canvas.clientWidth !== canvas.width) canvas.width = canvas.clientWidth;

@@ -9,6 +9,9 @@ export default class Program {
         //TODO:delayed functions!
         this.functionStack = [];
         this.collection = new collection();
+        //calculate total rgb 
+        //if any one % is > 60 
+        //find an org with max red and add pattern 
     }
     
     addToFunctionStack = (inst) => {
@@ -27,6 +30,7 @@ export default class Program {
         }
         
         this.execute(inst)
+        this.collection.checkCollectionValues();
         console.log(this.collection.organisms)
     }
     execute = (inst) => {

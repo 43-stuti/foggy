@@ -207,14 +207,22 @@ export default class Parser {
             glow:null,
             intensity:null
         }
-        if(fn == 'GLOW') {
+        if(fn == 'glow') {
             //brigtness
             props.colortype = 'GLOW';
-            props.intensity = val;
+            props.intensity = (val[0] == '..') ? null:val[0];
+            props.glow = (val[1] == '..') ? null:val[1];
         }
-        if(fn == 'SWIRL') {
+        if(fn == '!glow') {
+            //brigtness
+            props.colortype = 'BASIC';
+        }  
+        if(fn == 'swirl') {
             props.colortype = 'SWIRL';
-            props.intensity = val; 
+            props.grains = (val[0] == '..') ? null:val[0];
+        }
+        if(fn == '!swirl') {
+            props.colortype = 'BASIC';
         }
         let returnObj = {};
         returnObj[this.org] = props;

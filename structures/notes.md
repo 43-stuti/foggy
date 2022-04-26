@@ -61,6 +61,15 @@ similar colours are the last to merge
 
  */
 
+make org 
+position it
+
+evolution for multi?
+stuti+lulu+jenny -> rob
+
+
+
+a trait evolves with one can reuse
 
 
 
@@ -231,7 +240,7 @@ driven by desire for stablity
 Emergency update: {
     * drivenBy: territory over load 
     * drivenBy: colour overload
-    : ofTheForm: change its own colour gradually.
+    : ofTheForm: add pattern.
     : ofTheForm: background colour changing.
     : ofTheForm: shrinking/fading an organism
     : ofTheForm: move orgs to other locations
@@ -257,3 +266,32 @@ angle
 speed 
 
 merge 
+
+
+lulu:
+size like 2*rob
+distort lulu 
+
+
+shape lulu
+
+positions
+distance and angle 
+
+movement 
+distance and angle 
+
+size 
+distance 
+
+pattern 
+and colour 
+
+lulu:
+mimic stuti 
+pattern mimic stuti 
+size mimic stuti 
+movement mimic stuti*2
+
+
+

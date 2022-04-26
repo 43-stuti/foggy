@@ -20,9 +20,8 @@ export default class jsToGlsl {
                 fieldColors[i] = vec3(0.0,0.0,0.0);
                 distance[i] = 0.0;
             }
-            vec2 st = (gl_FragCoord.xy - 0.*uResolution.xy);
-            float res = min(uResolution.x, uResolution.y);
-            st = st/res;
+            vec2 st = gl_FragCoord.xy/uResolution.xy;
+            st.x *= uResolution.x/uResolution.y;
             vec3 color = vec3(.0);
         `
         return codeString
@@ -37,12 +36,12 @@ export default class jsToGlsl {
                 //remap uvs
                 //TODO: random swirl
                 codeString = `
-                    vec2 uv = posn_${index} ;
+                    vec2 uv_${index} = posn_${index} ;
                     for(int i = 0; i < ${colour.grains}; i++)
-                        uv *= rotationMatrix(asin(length(uv)));
-                    vec3 colour_${index} = uv.y*vec3(${colour?.r || 1.0},${colour?.g || 1.0},${colour?.b || 1.0});
-                    colour_${index} += uv.x*vec3(${colour?.r || 1.0},${colour?.g || 1.0},${colour?.b || 1.0})*0.5;
-                    colour_${index} += (length(uv-st))*vec3(${colour?.r || 1.0},${colour?.g || 1.0},${colour?.b || 1.0})*1.5;
+                    uv_${index} *= rotationMatrix(asin(length(uv_${index})));
+                    vec3 colour_${index} = uv_${index}.y*vec3(${colour?.r || 1.0},${colour?.g || 1.0},${colour?.b || 1.0});
+                    colour_${index} += uv_${index}.x*vec3(${colour?.r || 1.0},${colour?.g || 1.0},${colour?.b || 1.0})*0.5;
+                    colour_${index} += (length(uv_${index}-st))*vec3(${colour?.r || 1.0},${colour?.g || 1.0},${colour?.b || 1.0})*1.5;
                 `
             break;
             case 'GLOW' :

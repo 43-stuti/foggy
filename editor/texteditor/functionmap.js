@@ -1,18 +1,18 @@
 //set no of orgs and arg values
 const map = {
-    'devise': {
+    'spawn': {
         fn:'create',
         parser:'parseWorld'
     },
-    'locate': {
+    'habitat': {
         fn:'locate',
         args:['centerx','centery']
     },
-    'setsize': {
+    'size': {
         fn:'setsize',
         args:['sizevalue']
     },
-    'setcolor': {
+    'pigment': {
         fn:'setcolor',
         args:['r','g','b']
     },
@@ -41,12 +41,22 @@ const map = {
     //patterns
     //mix them to one
     'glow': {
-        fn:'GLOW',
+        fn:'glow',
+        parser:'parseColor',
+        args:['glow','intensity']
+    },
+    '!glow': {
+        fn:'!glow',
         parser:'parseColor'
     },
     'swirl': {
-        fn:'SWIRL',
-        parser:'parseColor'
+        fn:'swirl',
+        parser:'parseColor',
+        args:['grains']
+    },
+    '!swirl': {
+        fn:'swirl',
+        parser:'!parseColor'
     },
    
     
