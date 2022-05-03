@@ -42,7 +42,7 @@ export default class Collection {
             }
         }
 
-        if(Object.keys(this.organisms).length > 4) {
+        if(Object.keys(this.organisms).length > 2) {
             let pr = this.r/(this.r+this.b+this.g);
             let pg = this.g/(this.r+this.b+this.g);
             let pb = this.b/(this.r+this.b+this.g);

@@ -210,7 +210,7 @@ export default class jsToGlsl {
                     if(movement.movementtype == 'LINEAR') {
                         center.centerx += movement.speed.speedval*Math.cos(movement.speed.angle*Math.PI/180);
                         center.centery += movement.speed.speedval*Math.sin(movement.speed.angle*Math.PI/180);
-                        console.log('CC',center)
+                        //console.log('CC',center)
                         if(center.centery > 1 || center.centerx > 1 || center.centerx < 0 || center.centery < 0) {
                             movement.speed.speedval *= -1;
                         }
@@ -223,10 +223,10 @@ export default class jsToGlsl {
                             movement.speed.center.x =  center.centerx + r;
                             movement.speed.center.y =  center.centery;
                         }
-                        console.log('MOVE SP',movement.speed)
+                        //console.log('MOVE SP',movement.speed)
                         center.centerx = movement.speed.center.x + Math.cos(time*Math.PI*f)*r;
                         center.centery = movement.speed.center.y + Math.sin(time*Math.PI*f)*r;
-                        console.log('CIRC CENT',center,r,f)
+                        //console.log('CIRC CENT',center,r,f)
                     }
                     
                 }

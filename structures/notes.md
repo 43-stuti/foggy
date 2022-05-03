@@ -295,3 +295,46 @@ movement mimic stuti*2
 
 
 
+
+union 
+subtract 
+
+Error as a conscious choice 
+Error as collaborator
+Narrative 
+Get to a number
+
+spawn stuti:
+
+initial size 
+O -> 0.02
+C -> pink
+
+first colours 
+first size 
+
+
+circle 
+radius 
+
+
+Spawn organisms 
+name them 
+change their shape 
+
+
+doing this ---> leads to this 
+
+
+how to add colour 
+how to distort shape 
+how to make it move 
+how does it fuse 
+
+to add colour 
+x 
+
+
+
+
+

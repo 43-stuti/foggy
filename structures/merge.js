@@ -6,7 +6,6 @@ export default class Merge {
     }
     setProperty(element) {
         let {valid,elm} = this.isValid(element);
-            console.log('WTFF',elm,valid)
             if(!valid) {
                 return false;
             }
