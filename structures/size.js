@@ -1,5 +1,5 @@
-const SIZE = 0.01;
-const MAXGROWTH = 0.2;
+const SIZE = 0.05;
+const MAXGROWTH = 0.5;
 export default class Size {
     constructor() {
         this.sizevalue = SIZE;
@@ -19,13 +19,13 @@ export default class Size {
             this.sizevalue = elm.value;
         }
         if(elm.type == 'GROWS') {
-            this.moves = elm.value;
+            this.grows = elm.value;
         }
         if(elm.type == 'MAXGROWTH') {
-            this.moves = elm.value;
+            this.maxGrowth = elm.value;
         }
         if(element.type == 'GROWTHSPEED') {
-            this.moves = elm.value;
+            this.growthSpeed = elm.value;
         }
            
     }

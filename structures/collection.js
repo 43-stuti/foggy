@@ -2,10 +2,39 @@ import Org from './org.js'
 export default class Collection {
     constructor() {
         this.organisms = {}
+        this.active = []
         this.r = 0;
         this.g = 0;
         this.b = 0;
         this.counter = 0;
+        this.op = {
+            '+' : {
+                lastUsed:0,
+                frequency:0
+            },
+            '-' : {
+                lastUsed:0,
+                frequency:0
+            },
+            '*' : {
+                lastUsed:0,
+                frequency:0
+            },
+            '/' : {
+                lastUsed:0,
+                frequency:0
+            },
+            '%' : {
+                lastUsed:0,
+                frequency:0
+            }
+        }
+        this.error = {
+            r:0.0001,
+            g:0.0001,
+            b:0.0001,
+            type:0
+        }
     }
     add(obj) {
        if(this.organisms[obj?.name]) {
@@ -14,63 +43,32 @@ export default class Collection {
        }
        this.organisms[obj?.name] = new Org(obj?.name,obj?.type||'UNI',this.organisms);
     }
+    updateCounter(val,op,inst) {
+        this.counter = this.counter + val;
+        this.op[op]['frequency'] += 1;
+        this.op[op]['lastUsed'] = inst;
+        console.log(this.op)
+    }
+    destroyRandOrg() {
+        let keys = Object.keys(this.organisms);
+        let rand = Math.floor(Math.random()*(keys.length -1));
+        let org = keys[rand];
+        this.organisms[org].inDestruction = true;
+        return org
+    }
+    destroy(org) {
+        console.log('KILLLLLLL',org)
+        delete this.organisms[org];
+        let event = new Event('recomplieshader');
+        window.editor.dispatchEvent(event);
+    }
     checkCollectionValues() {
-        //reset merge values
-        //check colour and add pattern
-        this.r = 0;
-        this.g = 0;
-        this.b = 0;
-        let maxr={value:0,org:null},maxg={value:0,org:null},maxb={value:0,org:null}
-        for(let org in this.organisms) {
-            console.log('LALLA',this.organisms,this.organisms[org]?.colour)
-            this.r += this.organisms[org]?.colour?.r;
-            this.g += this.organisms[org]?.colour?.g;
-            this.b += this.organisms[org]?.colour?.b;
-            if(this.organisms[org]?.colour?.r > maxr.value) {
-                maxr.value = this.organisms[org]?.colour?.r;
-                maxr.org = org
-            }
-
-            if(this.organisms[org]?.colour?.g > maxg.value) {
-                maxg.value = this.organisms[org]?.colour?.g;
-                maxg.org = org
-            }
-
-            if(this.organisms[org]?.colour?.b > maxb.value) {
-                maxb.value = this.organisms[org]?.colour?.b;
-                maxb.org = org
-            }
-        }
-
-        if(Object.keys(this.organisms).length > 2) {
-            let pr = this.r/(this.r+this.b+this.g);
-            let pg = this.g/(this.r+this.b+this.g);
-            let pb = this.b/(this.r+this.b+this.g);
-            let prob = Math.random();
-            let org;
-            console.log('PROB',prob);
-            if(prob > 0.5) {
-                if(pr >= 0.5) {
-                   org = maxr?.org;
-                }
-                if(pg >= 0.5) {
-                    org = maxg?.org
-                }
-                if(pb >= 0.5) {
-                    org = maxb?.org
-                }
-                if(org) {
-                    setTimeout(()=> {
-                        this.organisms[org].colour.r = 1 - this.organisms[org]?.colour.r;
-                        this.organisms[org].colour.g = 1 - this.organisms[org]?.colour.g;
-                        this.organisms[org].colour.b = 1 - this.organisms[org]?.colour.b;
-                    },2000)
-                    
-                }
-            }
-            
-            //update color
-        }
-
+        
+    }
+    newError() {
+        this.error.r = Math.random();
+        this.error.g = Math.random();
+        this.error.b = Math.random();
+        this.error.type = Math.floor(Math.random()*3)+1;
     }
 }

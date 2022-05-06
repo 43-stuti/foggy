@@ -9,7 +9,7 @@ export default class Org {
         this.name = name;
         this.size = new size();
         this.colour = new color();
-        this.center = new center();
+        this.center = new center(name);
         this.distortion = new distortion();
         this.movement = new movement();
         this.merge = new merge(orgs);
@@ -18,10 +18,10 @@ export default class Org {
         this.extinct = false;
         this.mutations = [];
         this.orgs = orgs;
+        this.inDestruction = false;
     }
     setProperty(element) {
         let {valid,elm} = this.isValid(element);
-        console.log('ELM',elm)
         if(!valid) {
             return false;
         }

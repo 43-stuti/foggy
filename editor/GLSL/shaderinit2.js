@@ -10,11 +10,6 @@ const fragBase = `
 
   uniform vec2 uResolution;
   uniform float timex;
-  uniform float ct;
-  uniform float sizes[11];
-  uniform float positionsX[11];
-  uniform float positionsY[11];
-  uniform int mergeUnifrom[11];
   uniform int count;
   #define NUM_OCTAVES 5
   #define index 1
@@ -119,12 +114,6 @@ const shaders = {
   precision mediump float;
   uniform vec2 uResolution;
   uniform float timex;
-  uniform float ct;
-  uniform float sizes[11];
-  uniform float positionsX[11];
-  uniform float positionsY[11];
-  uniform int mergeUnifrom[11];
-  uniform int count;
   float random (in vec2 st) {
     return fract(sin(dot(st.xy,
                          vec2(12.9898,78.233)))*
@@ -169,12 +158,11 @@ float fbm (in vec2 st) {
 void main() {
     vec2 st = gl_FragCoord.xy/uResolution.xy;
     st.x *= uResolution.x/uResolution.y;
-    float test = ct;
     vec3 color = vec3(0.0);
     st.y *= sin(timex*0.09);
     color += fbm(st*3.0);
 
-    gl_FragColor = vec4(positionsY[1],0,0,1.0);
+    gl_FragColor = vec4(color,1.0);
 }
   `
 };
@@ -214,19 +202,11 @@ export default class shaderinit {
 
     let animate = (t) => {
       console.log(canvas.clientWidth,canvas.width)
-      let uniformValues = this.toglsl.updateUniforms(t/1000);
-      colorStat = Math.random();
       if(canvas.clientWidth !== canvas.width) canvas.width = canvas.clientWidth;
       if(canvas.clientHeight !== canvas.height) canvas.height = canvas.clientHeight;
       gl.viewport(0,0,canvas.width, canvas.height);
       gl.uniform2fv(fragLocations.resLoc, [canvas.width, canvas.height]);
       gl.uniform1f(fragLocations.timeLoc, t/1000);
-      gl.uniform1f(fragLocations.colorPos, colorStat);
-      gl.uniform1fv(fragLocations.x, uniformValues.xPos);
-      gl.uniform1fv(fragLocations.y, uniformValues.yPos);
-      gl.uniform1fv(fragLocations.size, uniformValues.size);
-      gl.uniform1iv(fragLocations.merge, uniformValues.mergeUniform);
-      gl.uniform1i(fragLocations.count, uniformValues.count);
       gl.clearColor(1., 1., 1.0, 1.0);
       gl.clear(gl.COLOR_BUFFER_BIT);
       gl.drawArrays(gl.TRIANGLES, 0, vertexCount);
@@ -261,12 +241,6 @@ export default class shaderinit {
   bindLocations = () => {
     fragLocations.timeLoc = gl.getUniformLocation(this.program, "timex");
     fragLocations.resLoc = gl.getUniformLocation(this.program, "uResolution");
-    fragLocations.colorPos = gl.getUniformLocation(this.program, "ct");
-    fragLocations.x = gl.getUniformLocation(this.program, "positionsX");
-    fragLocations.y = gl.getUniformLocation(this.program, "positionsY"); 
-    fragLocations.merge = gl.getUniformLocation(this.program, "mergeUnifrom");
-    fragLocations.size = gl.getUniformLocation(this.program, "sizes");
-    fragLocations.count = gl.getUniformLocation(this.program, "count");
   }
 
   updateShader = (newShader) => {

@@ -16,7 +16,6 @@ export default class Color {
 
     setProperty(element) {
         let {valid,elm} = this.isValid(element);
-            console.log('WTFFFFFFFFFFFFFFFF',elm,valid)
             if(!valid) {
                 return false;
             }

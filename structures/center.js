@@ -1,9 +1,10 @@
 const CENTERX = Math.random();
 const CENTERY = Math.random();
 export default class Center {
-    constructor() {
-        this.centerx = CENTERX;
-        this.centery = CENTERY;
+
+    constructor(val) {
+        this.centerx = 0.09+(((val-1)%3))*0.65;
+        this.centery = 0.9 - (Math.floor((val-1)/3))*0.25
         this.randomPos = false
     }
     setProperty(element) {

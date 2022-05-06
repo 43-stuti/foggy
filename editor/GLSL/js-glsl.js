@@ -5,17 +5,17 @@ export default class jsToGlsl {
     
     constructor(args) {
         this.orgs = args.organisms
-        
+        this.collection = args
     }
     starter = () => {
         let codeString = `
         
         void main() {
-            float fields[50];
-            vec3 fieldColors[50];
-            float distance[50];
+            float fields[11];
+            vec3 fieldColors[11];
+            float distance[11];
             float totalDist = 0.0;
-            for(int i=0;i<50;i++) {
+            for(int i=0;i<11;i++) {
                 fields[i] = 0.0;
                 fieldColors[i] = vec3(0.0,0.0,0.0);
                 distance[i] = 0.0;
@@ -134,7 +134,7 @@ export default class jsToGlsl {
                 color += shape_${ind}*colour_${ind};
             `
             codeString += `
-                for(int j=0;j<50;j++) {
+                for(int j=0;j<11;j++) {
                     if(j == merge_${ind}) {
                         fields[j] += (20.0*${obj.size.sizevalue})/((length(posn_${ind}))*(length(posn_${ind})));
                         distance[j] += length(posn_${ind});
@@ -144,11 +144,21 @@ export default class jsToGlsl {
             ind++;
         }
         //modify here to add background
+        let err = this.collection.error
+        if(err.type == 1) {
+            codeString += `color = random2( st ).x*vec3(${err.r},${err.g},${err.b});`
+        }
+        if(err.type == 2) {
+            codeString += `color = random( st.x*st.y )*vec3(${err.r},${err.g},${err.b});`
+        }
+        if(err.type == 3) {
+            codeString += `color = noise( st )*vec3(${err.r},${err.g},${err.b});`
+        }
         codeString += 
                 `
                     ${this.blendColour()}
                     
-                    for(int i=0;i<50;i++) {
+                    for(int i=0;i<11;i++) {
                         color += (step(1.,vec3(min ( 1.0, max ( fields[i]/255.0, 0.0 ) ))))*fieldColors[i];
                     }
                     //color *= vec3(sin(200.*3.14*st.y));
@@ -169,7 +179,7 @@ export default class jsToGlsl {
                 continue;
             }
             codeString += `
-            for(int j=0;j<100;j++) {
+            for(int j=0;j<11;j++) {
                 if(j == merge_${ind}) {
                 `
                 if(mergeArray[this.orgs[org].mergeGroup]?.length > 1) {
@@ -200,35 +210,42 @@ export default class jsToGlsl {
             if(started) {
                 //handle growth types
                 //oscialltes small and 
-                if(size.grows) {
-                    size.sizevalue += size.growthSpeed;
-                    if(size.sizevalue > 1 || size.sizevalue <0 || size.sizevalue > size.maxGrowth) {
-                        size.grows = false;
+                if(this.orgs[org].inDestruction) {
+                    size.sizevalue -= 0.0004;
+                    if(size.sizevalue <= 0) {
+                        this.collection.destroy(org);
                     }
-                }
-                if(movement.moves) {
-                    if(movement.movementtype == 'LINEAR') {
-                        center.centerx += movement.speed.speedval*Math.cos(movement.speed.angle*Math.PI/180);
-                        center.centery += movement.speed.speedval*Math.sin(movement.speed.angle*Math.PI/180);
-                        //console.log('CC',center)
-                        if(center.centery > 1 || center.centerx > 1 || center.centerx < 0 || center.centery < 0) {
-                            movement.speed.speedval *= -1;
+                } else {
+                    if(size.grows) {
+                        size.sizevalue += size.growthSpeed*Math.sin(time*Math.PI);
+                        if(size.sizevalue >= 1 || size.sizevalue <=0 || size.sizevalue > size.maxGrowth) {
+                            size.growthSpeed *= -1;
                         }
                     }
-                    if(movement.movementtype == 'CIRCULAR') {
-                        let r = movement.speed.rad+size.sizevalue;
-                        let f = movement.speed.delta;
-                        if(!movement.speed.center) {
-                            movement.speed.center = {}
-                            movement.speed.center.x =  center.centerx + r;
-                            movement.speed.center.y =  center.centery;
+                    if(movement.moves) {
+                        if(movement.movementtype == 'LINEAR') {
+                            center.centerx += movement.speed.speedval*Math.cos(movement.speed.angle*Math.PI/180);
+                            center.centery += movement.speed.speedval*Math.sin(movement.speed.angle*Math.PI/180);
+                            //console.log('CC',center)
+                            if(center.centery > 1 || center.centerx > 1.3 || center.centerx < 0 || center.centery < 0) {
+                                movement.speed.speedval *= -1;
+                            }
                         }
-                        //console.log('MOVE SP',movement.speed)
-                        center.centerx = movement.speed.center.x + Math.cos(time*Math.PI*f)*r;
-                        center.centery = movement.speed.center.y + Math.sin(time*Math.PI*f)*r;
-                        //console.log('CIRC CENT',center,r,f)
+                        if(movement.movementtype == 'CIRCULAR') {
+                            let r = movement.speed.rad+size.sizevalue;
+                            let f = movement.speed.delta;
+                            if(!movement.speed.center) {
+                                movement.speed.center = {}
+                                movement.speed.center.x =  center.centerx + r;
+                                movement.speed.center.y =  center.centery;
+                            }
+                            //console.log('MOVE SP',movement.speed)
+                            center.centerx = movement.speed.center.x + Math.cos(time*Math.PI*f)*r;
+                            center.centery = movement.speed.center.y + Math.sin(time*Math.PI*f)*r;
+                            //console.log('CIRC CENT',center,r,f)
+                        }
+                        
                     }
-                    
                 }
                 
             }
@@ -293,18 +310,22 @@ export default class jsToGlsl {
                 if(mergeObj[ind] != index) {
                     let childObjIndex = mergeObj[ind]
                     let checkMerge = dummyObj[childObjIndex];
-                    
-                    let xDist = (currentObj.center.centerx-checkMerge.center.centerx);
-                    let yDist = (currentObj.center.centery-checkMerge.center.centery);
-                    let dist = Math.sqrt(xDist*xDist + yDist*yDist);
-                    let r =  parseFloat(checkMerge.size.sizevalue)+parseFloat(currentObj.size.sizevalue)
-                    //if dist b/w cent > (r1+r2)
-                    if(dist < r || Math.abs(dist-r) < 0.04) {
-                        mergeGroup.push(childObjIndex);
-                        let returnArray = this.merge(mergeObj[ind],dummyObj,[]);
-                        this.orgs[childObjIndex].mergeGroup = mergeArray.length+1;
-                        mergeGroup = [...mergeGroup,...returnArray]
+                    if(checkMerge) {
+                        let xDist = (currentObj.center.centerx-checkMerge.center.centerx);
+                        let yDist = (currentObj.center.centery-checkMerge.center.centery);
+                        let dist = Math.sqrt(xDist*xDist + yDist*yDist);
+                        let r =  parseFloat(checkMerge.size.sizevalue)+parseFloat(currentObj.size.sizevalue)
+                        //if dist b/w cent > (r1+r2)
+                        if(dist < r || Math.abs(dist-r) < 0.04) {
+                            mergeGroup.push(childObjIndex);
+                            let returnArray = this.merge(mergeObj[ind],dummyObj,[]);
+                            this.orgs[childObjIndex].mergeGroup = mergeArray.length+1;
+                            mergeGroup = [...mergeGroup,...returnArray]
+                        }
+                    } else {
+                        mergeObj.splice(ind)
                     }
+                    
                 }
                 
             }
@@ -327,6 +348,11 @@ export default class jsToGlsl {
                arr[index].g = this.toFloat(elm.g);
                arr[index].b = this.toFloat(elm.b);
             });
+            
+        }
+        if(org.distortion) {
+            org.distortion.amplitude = this.toFloat(org.distortion.amplitude);
+            org.distortion.frequency = this.toFloat(org.distortion.frequency);
             
         }
         return org

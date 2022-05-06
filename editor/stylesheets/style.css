@@ -1,30 +1,81 @@
-.background {
-    background-color: black;
+[contenteditable] {
+    outline: 0px solid transparent;
+  }
+.container {
+    background-color: #F5ECE4;
     height: 100vh;
     width: 100vw;
-    display: inline-block;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
-.canvas {
-    height: 100vh;
-    display: inline-block;
-    margin-top: 0px;
-    position: absolute;
+.background {
+    height: 70%;
+    width: 70%;
+}
+.grid-container {
+    height: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 2fr 1fr 1fr;
+    grid-column-gap: 5px;
+}
+.left {
+    grid-column-start: 1;
+    grid-column-end: 2;
+}
+.right {
+    grid-column-start: 2;
+    grid-column-end: 4;
 }
 #glCanvas {
-    height: 700px;
-    width: 1000px;
+    border-radius: 20px;
+    background-color: rgb(208, 211, 210);
+    height: 100%;
+    width: 100%;
+}
+.canvas {
+    height: 450px;
+    width: 100%;
+}
+
+.output {
+    border-radius: 10px;
+    margin-bottom: 10px;
+    background-color: #D9CABD;
+    height: 90px;
+    padding: 30px;
+    color: #000000;
 }
 .textEditor {
-    display: inline-block;
-    height: 100vh;
-    width: 50%;
+    height: 500px;
+    width: 80%;
+    border-radius: 20px;
+    padding: 30px;
+    background-color: #212121;
 }
 #text_editor_space {
-    background: transparent;
+    font-size: 13px;
     border: none;
     outline: none;
     color: greenyellow;
-    height: 100%;
-    width: 100%;
-    padding: 30px
+    height: 550px;
+    width: 80%;
+    padding: 30px;
+    overflow-y: scroll;
+    scrollbar-width: none;
+}
+.codeText {
+    color: greenyellow;
+    width: 50%;
+    margin-bottom: 2px;
+}
+.error  {
+    background-color:#471C1C;
+    color: #e61111;
+    border-radius: 11px;
+    padding: 8px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-size: 13px;
 }

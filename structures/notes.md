@@ -338,3 +338,115 @@ x
 
 
 
+Add threat errors 
+add keep
+add terminate 
+add fate 
+
+test growth 
+add clone 
+add background 
+
+maintain global counter
+fate 
+
+
+add colour and distortion pick 
+add keep function 
+
+
+enable/disable functions based in global counter state?
+
+state = [2,3,5]
+spawn original organism 
+{
+    2    
+}
+{
+    3
+}
+{
+    5
+}
+
+0 is background or driver?
+Better words for do, show, 
+
+
+DO 2+5
+DO 3+5
+SHOW POINTS 
+DO 3*8
+
+
+
+
+
+
+
+2,3,5,7,8
+
+
+
+
+GRAPHICAL CONSOLE 
+1 ,2 ,3
+4,5,6
+7,8,9
+10
+
+|------------|
+|------------|
+|------------|
+|------------|
+|------------|
+
+ALIVE
+2,3,5
+
+OUTPUT
+print (hello world)
+print (400)
+
+
+
+
+
+DO: test with printing hello world 
+
+
+
+what do fractions do?
+
+
+what is the feel?
+OO -> execute
+
+poop 2+3 
+loose 3*2
+goose 3%2
+
+OW -> print 
+
+
+a word without 
+OO,OW and E 
+
+
+
+css grid 
+4 cols 6 
+
+
+
+change font 
+display variables?
+correct canvas range 
+
+display output 
+handle show
+new instructions 
+show error messages
+fix inital display 
+oneventchange (add counter)
+make boxes with ids 
