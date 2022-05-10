@@ -3,36 +3,36 @@ import intop from "./int-op.js"
 
 export default class ErrorProgram {
     constructor() {
-        //TODO:delayed functions!
         this.errorStack = []
         this.currentString = ''
     }
     addToFunctionStack = (inst) => {
     }
-    error = (type,inst) => {
-        console.log('ERRR',type,inst)
-        //get keyword strength 
-        //get arg1 
-        //get arg2 
-        //get op 
-        //check if 0th is string
-        let vals = inst.split(" ");
-        let arr = [vals[0]||'',...vals?.[1]?.split('')];
+    error = (label,arg) => {
         //[label,arg1,op,arg2]
-        let op = this.labelStrength(arr[0])%5;
-        let fn = (parseInt(arr[1]) || Math.floor((Math.random())*13))%13;
-        let arg = vals[3] || Math.random();
+        let op = this.labelStrength(label || '')%5;
+        let fn = (!isNaN(arg?.[0])) ? arg[0] : Math.floor((Math.random())*12)
+        fn = fn%13;
+        //shader function argument
+        let sarg = (!isNaN(arg?.[1])) ? arg[1] :Math.floor((Math.random())*200)+Math.random()
 
         let opval = intop[op];
         let fnval = glslmap[fn];
         //pick x or y
-        this.makeGLSL(op,opval,fnval,arg)
+        console.log('INPUT',label,arg);
+        console.log('OP',op,opval);
+        console.log('FN',fn,fnval);
+        console.log('ARG',sarg);
+        //sarg 0
+        //smoothstep()
+        
+        this.makeGLSL(op,opval,fnval,sarg)
 
     }
     makeGLSL = (op,opval,fnval,arg) => {
         let xy = ''
         if(op % 2 == 0) {
-            xy = 'y';
+            xy = 'x';
         } else {
             xy = 'x'
         }
@@ -41,6 +41,7 @@ export default class ErrorProgram {
         console.log(this.currentString)
     }
     labelStrength = (str) => {
+        console.log('HMMM',str,str.length)
         let val = 0;
         for (var i = 0; i < str.length; i++) {
             val += str.charCodeAt(i);
@@ -59,8 +60,11 @@ export default class ErrorProgram {
     fract(opval,arg,xy) {
         return `${xy} ${opval} fract(${xy}*${this.toFloat(arg)});`
     }
+    random(opval,arg,xy) {
+        return `${xy} ${opval} random(${xy}*${this.toFloat(arg)});`
+    }
     pow(opval,arg,xy) {
-        return `${xy} ${opval} pow(${this.toFloat(arg)},${xy});`
+        return `${xy} ${opval} pow(${this.toFloat(parseFloat((arg)*0.01))},${xy});`
     }
     floor(opval,arg,xy) {
         return `${xy} ${opval} floor(${xy});`
@@ -69,21 +73,25 @@ export default class ErrorProgram {
         return `${xy} ${opval} length(vec2(x,y));`
     }
     noise(opval,arg,xy) {
-        return `${xy} ${opval} noise(vec2(x,y))*${arg});`
+        return `${xy} ${opval} noise(${xy}*${this.toFloat(arg)});`
+    }
+    noise2(opval,arg,xy) {
+        return `${xy} ${opval} noise2(st*${this.toFloat(arg)});`
     }
     fbm(opval,arg,xy) {
-        return `${xy} ${opval} fbm(vec2(x,y))*${arg});`
+        return `${xy} ${opval} fbm(${xy}*${this.toFloat(arg)});`
     }
     rotate(opval,arg,xy) {
-        return `${xy} ${opval} (rotate2d(vec2(x,y))*${arg})).${xy};`
+        return `st ${opval} (rotate2d(${this.toFloat(arg)})*st);`
     }
-    clamp(opval,arg,xy) {
-        return `${xy} ${opval} rotate2d(vec2(x,y))*${arg}).${xy};`
+    step(opval,arg,xy) {
+        return `${xy} ${opval} step(${this.toFloat(parseFloat((arg)*0.1))},${xy});`
     }
     toFloat = (val) => {
         val = val.toString();
         let split = val.split('.');
-        return split[1] ? val : split[0]+'.0'
+        console.log('SPPP')
+        return (split[1] ? val : split[0]+'.0')
     }
     //add init
 }

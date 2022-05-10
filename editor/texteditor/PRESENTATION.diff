@@ -1,0 +1,145 @@
+Sometime back I stumbled upon this website 
+https://esoteric.codes/
+The description reads - "Languages, platforms, and systems that break from the norms of computing"
+You see collections of projects which are called programming languages. With fun and interesting takes on how an unconventinal programming langugae woould look like. 
+EG: 
+
+reading through their documentation, understanding their rules and sytanx  and trying them out. 
+Typing multiple lines of code to just print hello world! 
+- I wondered, But why?
+As I read though the interviews of some of the creators of these languages. 
+- I learned; This isnt meant to be for practical software development. These are languages made as an experiemnt usually by hobbyists
+as art or a joke or a commentary on computing. 
+
+Another language that fascinated me alot was INTERCAL. 
+please thing add. 
+
+
+[Programming languages are complex. But people were making them  
+This whole space of experimentations seemed so fascinating to me.] **Stronger
+You make a language not concering about how heavy grade enterprise software can be made with it but as an exploration. 
+There are so many people making it. [show scroll] Some said they made theirs in a few days. Some took months.  
+
+
+I wanted to make one!
+So I started brainstorming on ideas of what my language would look like?
+
+What characteristic did I want my language to have? 
+- I wanted it to be fast to learn
+-  I wanted it to be nonsensical to some extent
+- I wanted it to carry the feel of puzzle solving and game. 
+- I wanted to have fun with the error messages. 
+
+
+Thinking of different rules and sytanx I set out to make a short prototype with only 4 instructions. 
+And here is where I landed. 
+[Name]: 
+So I landed on a simple idea of playing with a coding language. 
+
+
+CURRENT STATE: 
+There are only 5 variables 
+
+GLOBAL -> it's value can only be modified or used to output.
+It cannot be used to execute instructions 
+
+A -> 1
+B -> 3
+C -> 4
+D -> 5
+
+it has a value of 1. 
+these variables can be directly accessed by the value stored in them. 
+
+INSTRUCTIONS 
+PRINT, EXECUTE, GENERATE
+
+each "GENERATE" command stores the value in the next available memory.
+All arithmetic can only be performed with the values available in memory. 
+
+if I were to print hello world.
+I would first take the current state to the ASCII(what is ascii) value of "H"
+[SHOW CODE]
+and issue a DISPLAY command
+
+I now start moving it to the ascii value of E. 
+Oops! 
+which doesnt rcognise any integers like 4,5,6,10 etc. But 1 and 2 
+You ask it to do 4+5 and it wouldn't know what 4 is or what 5 is and errors out.
+So you start by introducing to it the idea of 4. 
+You ask it to GENERATE/RECOGNISE something that is made with say 2+1 (it knows 2 and 1)
+So now it recognises 4. But also, at the time it can store in its memory and understanding of only 4 integres.
+show examples of memory running out. 
+get to E and print E.
+
+As I was proceeding to develop this further, adding more commands and ... I started thinking of errors. 
+ERRORS- 
+The thing that the language does not understand due to the nature of it's design and rules. 
+[IMAGES OF ERRORS]
+- errors in conventional languages
+- types of errors 
+
+They are an annoyance. 
+
+What happens to all the lines of invalid code? 
+Just garbage? 
+Hit undo. recorrect it. 
+It def did use some computing power?!
+30% of my coding ouput produces errors. 
+
+"Bugs are the primary progeny of programmers. We write broken software"
+"the computer constantly displays undeniable evidence of his failures to him"
+What if they weren't
+
+Now that I made this (basic?) what if approached errors in a different way?
+What it the lines of [red line, red lines]. translated to look like this?
+
+//some more on error
+ It is something slipped out of your control. 
+
+All of this unwanted annoynace(code that made error and the error message)
+The lines of code that made error and the error message. 
+something tried to repurpose it, 
+
+Like recycling garbage. You don't know what it will get recycled to but you have the satisfaction that probably something [good]?
+
+And So I evolved this language to be called 
+to err or not. 
+Where every line of valid code does what the program is inteded to do. 
+I pront my hello world! 
+
+But every invalid code. Gets added as a line of shader code 
+and you error starts to look a little like - [IMAGE]
+and then [IMAGE]
+
+and called it to err or not;
+It does halt operation with the wring command. 
+
+But then that wrong line of code, is used by another interpretor to make it look like this. 
+
+Would you intentially make an error then?
+
+
+So how it works. 
+ERROR_CODE -> Mapped to a shader function 
+The charvalue of the string -> gets pased as arguments to the function 
+
+Science and the Compulsive Programmer
+from Computer Power and Human Reason [1976]
+
+by Joseph Weizenbaum
+https://www.sac.edu/AcademicProgs/Business/ComputerScience/Pages/Hester_James/HACKER.htm
+"Bugs are the primary progeny of programmers. We write broken software"
+"the computer constantly displays undeniable evidence of his failures to him"
+"error, when everything ought to work but the computer nevertheless reproaches him by misbehaving 
+in a number of mysterious, apparently unrelated ways.  It is then that the system the programmer has himself created gives every evidence of having taken on a life of its own and, certainly, of having slipped from his control."
+"undo, and to redo to better serve his purpose"
+
+On Logic:
+Banal ideas can be rescued by carrying them out with precision, or even through increased repetition, as it is hard for us to understand even relatively immediate repercussions of our actions in the logical space, bringing us again and again to unexpected places.
+explain different types of errors?
+
+
+If the language can be playful then  why can't the errors be too. 
+I wanted to focus on error 
+MOVE IT TO START: 

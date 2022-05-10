@@ -2,10 +2,7 @@ import Org from './org.js'
 export default class Collection {
     constructor() {
         this.organisms = {}
-        this.active = []
-        this.r = 0;
-        this.g = 0;
-        this.b = 0;
+        this.stack = [];
         this.counter = 0;
         this.op = {
             '+' : {
@@ -29,46 +26,37 @@ export default class Collection {
                 frequency:0
             }
         }
-        this.error = {
-            r:0.0001,
-            g:0.0001,
-            b:0.0001,
-            type:0
-        }
     }
     add(obj) {
        if(this.organisms[obj?.name]) {
            console.log("Duplicate organism");
            return false;
        }
-       this.organisms[obj?.name] = new Org(obj?.name,obj?.type||'UNI',this.organisms);
+       if(this.stack.length >= 5) {
+           this.remove()
+       }
+       this.organisms[obj?.name] = new Org();
+       this.stack.push(obj?.name);
+       this.updateDOM()
     }
     updateCounter(val,op,inst) {
         this.counter = this.counter + val;
         this.op[op]['frequency'] += 1;
         this.op[op]['lastUsed'] = inst;
-        console.log(this.op)
+        let elm = document.getElementById(`counter`);
+        elm.innerHTML = `${this.counter}`;
     }
-    destroyRandOrg() {
-        let keys = Object.keys(this.organisms);
-        let rand = Math.floor(Math.random()*(keys.length -1));
-        let org = keys[rand];
-        this.organisms[org].inDestruction = true;
-        return org
+    remove() {
+        let deleteElm = this.stack.shift();
+        delete this.organisms[deleteElm];
     }
-    destroy(org) {
-        console.log('KILLLLLLL',org)
-        delete this.organisms[org];
-        let event = new Event('recomplieshader');
-        window.editor.dispatchEvent(event);
-    }
-    checkCollectionValues() {
-        
-    }
-    newError() {
-        this.error.r = Math.random();
-        this.error.g = Math.random();
-        this.error.b = Math.random();
-        this.error.type = Math.floor(Math.random()*3)+1;
+    updateDOM() {
+        for(let i=0; i< 5;i++) {
+            let elm = document.getElementById(`val_${i+1}`);
+            elm.innerHTML = '';
+            if(this.stack[i]) {
+                elm.innerHTML = this.stack[i];
+            }
+        }
     }
 }

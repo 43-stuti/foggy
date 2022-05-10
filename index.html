@@ -3,13 +3,56 @@
   <head>
     <meta charset="utf-8">
     <title>foggy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./editor/stylesheets/style.css">
  </head>
  <body>
  
  <div class="container">
+     <div class="title">
+        to err; or not
+     </div>
+     <div class="button-container">
+        <div class="helper-button" id="ascii">
+           ASCII Table
+        </div>
+        <div class="helper-button" id="guide">
+            Guide
+         </div>
+    </div>
+     <div class="img-container" id="ascii-img">
+        <img src="ascii.png"> </img>
+     </div>
+     <div class="img-container" id="guide-img">
+        <img src="functions.png"> </img>
+     </div>
+     
     <div class="background">
+        
         <div class="grid-container">
+            <div class="state" id="state">
+                <div class="tool-heading">
+                    state
+                </div>
+                <div class="counter" id="counter">
+                    0
+                </div>
+                <div class="tool-heading">
+                    values
+                </div>
+                <div class="val" id="val_1">
+                </div>
+                <div class="val" id="val_2">
+                </div>
+                <div class="val" id="val_3">
+                </div>
+                <div class="val" id="val_4">
+                </div>
+                <div class="val" id="val_5">
+                </div>
+            </div>
             <div class="left">
                 <div class="textEditor" id="text_editor_space">
                     <!--<textarea id="text_editor_space" spellcheck="false">Type here</textarea>-->
@@ -17,19 +60,30 @@
                 </div>
             </div>
             <div class="right">
+                <div class="head">
+                    Output
+                </div>
                 <div class="output" id="console">
                     >
+                </div>
+                <div class="head">
+                    Error log
                 </div>
                 <div class="canvas">
                     <canvas id="glCanvas" ></canvas>
                 </div>
-                
             </div>
+            <div class="uc">
+                <div class="nopoint">
+                </div>
+            </div>
+            
         </div>
     </div>
  </div>
     
  <script src="scripts/require.js"></script>
+ <script src="./editor/texteditor/layout.js" type="module"></script>
  <script src="./editor/texteditor/main.js" type="module"></script>
  </body>
 </html>

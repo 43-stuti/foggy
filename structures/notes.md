@@ -450,3 +450,10 @@ show error messages
 fix inital display 
 oneventchange (add counter)
 make boxes with ids 
+
+
+2,3,5, , , , ,
+execute 2+3
+execute 4+7
+generate 2*2
+execute 

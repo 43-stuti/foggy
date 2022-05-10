@@ -1,4 +1,8 @@
 const glslmap = {
+    0 : {
+        fn:'step',
+        args:1
+    },
     1 : {
         fn:'fract',
         args:1
@@ -43,9 +47,11 @@ const glslmap = {
         fn:'rotate',
         args:1
     },
-    12 : {
-        fn:'clamp',
+    12: {
+        fn:'noise2',
         args:1
     }
 }
 export default glslmap;
+
+

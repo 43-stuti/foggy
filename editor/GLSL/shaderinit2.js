@@ -23,7 +23,7 @@ const fragBase = `
     float fc = fract(p);
     return mix(rand(fl), rand(fl + 1.0), fc);
   }
-  float noise(vec2 p){
+  float noise2(vec2 p){
   	vec2 ip = floor(p);
   	vec2 u = fract(p);
   	u = u*u*(3.0-2.0*u);
@@ -32,7 +32,7 @@ const fragBase = `
   		mix(rand(ip+vec2(0.0,1.0)),rand(ip+vec2(1.0,1.0)),u.x),u.y);
   	return res*res;
   }
-  float noise(vec3 p){
+  float noise3(vec3 p){
     vec3 a = floor(p);
     vec3 d = p - a;
     d = d * d * (3.0 - 2.0 * d);
@@ -66,7 +66,7 @@ const fragBase = `
   	// Rotate to reduce axial bias
       mat2 rot = mat2(cos(0.5), sin(0.5), -sin(0.5), cos(0.50));
   	for (int i = 0; i < NUM_OCTAVES; ++i) {
-  		v += a * noise(x);
+  		v += a * noise2(x);
   		x = rot * x * 2.0 + shift;
   		a *= 0.5;
   	}
@@ -77,7 +77,7 @@ const fragBase = `
   	float a = 0.5;
   	vec3 shift = vec3(100);
   	for (int i = 0; i < NUM_OCTAVES; ++i) {
-  		v += a * noise(x);
+  		v += a * noise3(x);
   		x = x * 2.0 + shift;
   		a *= 0.5;
   	}

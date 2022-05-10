@@ -1,9 +1,9 @@
 const labels = {
-    'DO': {
+    'GENERATE': {
     },
-    'UNDO': {
+    'EXEC': {
     },
-    'SHOW': {
+    'DISPLAY': {
     }
     
 }

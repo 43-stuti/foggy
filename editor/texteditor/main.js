@@ -6,6 +6,7 @@ import shaderinit from './../GLSL/shaderinit2.js'
 import ErrorProgram from './error-program.js'
 let errorProgram = new ErrorProgram()
 let program = new Program(errorProgram);
+window.currDiv;
 program.init()
 const parser = new Parser(program)
 //let toglsl = new jsToGlsl(program.collection);
@@ -59,10 +60,10 @@ init()
  */
  window.editor.addEventListener('keydown', (e) => {
     if(e.code === "Enter") {
-      let currDiv = document.getElementById(`inst_${window.ind}`);
+      window.currDiv = document.getElementById(`inst_${window.ind}`);
       window.ind++;
       e.preventDefault();
-      parse(currDiv.innerHTML);
+      parse(window.currDiv.innerHTML);
       recomplie();
       addNewLine();
       window.editor.scrollTop = window.editor.scrollHeight;
