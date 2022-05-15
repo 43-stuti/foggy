@@ -151,6 +151,18 @@
    font-size: 12px;
    color: #bd9f86;
 }
+.button-container-right {
+    position: fixed;
+    right: 100px;
+    bottom: 30px;
+    font-size: 12px;
+    color: #bd9f86;
+    height: 18px;
+    padding: 8px;
+    display: inline;
+    outline: 1px solid #a88c73;
+    margin-right: 10px;
+ }
 .helper-button {
     height: 18px;
     padding: 8px;

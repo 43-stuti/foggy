@@ -17,7 +17,7 @@ export default class Program {
         output.innerHTML = output.innerHTML+ String.fromCharCode(this.collection.counter);
     }
     error = (type,label,arg) => {
-       // this.graphicerror(label,arg);
+        this.graphicerror(label,arg);
         let errorString = 'Error fetching error'
         if(type == 1) {
             errorString = `You have performed an illegal action`;

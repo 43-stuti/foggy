@@ -19,7 +19,8 @@ export default class errorToGlsl {
         let codeString = this.starter();
         if(this.error.currentString != '') {
             codeString += `${this.error.currentString}
-                            vec3 color = vec3(x,y,0.25);
+            y += fbm((y*80.));
+                            vec3 color = vec3(x,y,0.3);
             `
         } else {
             codeString += `vec3 color = vec3(1.0,1.0,1.0);`
